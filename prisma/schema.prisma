@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Batch {
+  id   String @id
+  name String
+  pods Pod[]
+}
+
+model Pod {
+  id      String @id
+  name    String
+  batchId String
+  batch   Batch  @relation(fields: [batchId], references: [id])
+  users   User[]
+}
+
+model User {
+  id       String @id
+  fullName String
+  username String
+  podId    String
+  pod      Pod    @relation(fields: [podId], references: [id])
+  prs      PR[]
+}
+
+model PR {
+  id         Int      @id @default(autoincrement())
+  repository String
+  prId       Int
+  username   String
+  lastChecked DateTime
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  title      String?
+  htmlUrl    String?
+  state      String?
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  Commit Commit[]
+}
+
+model Commit {
+  id        Int      @id @default(autoincrement())
+  sha       String
+  message   String
+  authorName String
+  authorDate DateTime
+  prId      Int
+  pr        PR       @relation(fields: [prId], references: [id])
+}
+
