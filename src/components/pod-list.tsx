@@ -1,22 +1,22 @@
-'use client'
+"use client";
 
-import { useTrackedRepos } from '../contexts/tracked-repos-context'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+import { useTrackedRepos } from "../contexts/tracked-repos-context";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export function PodList({ batchId }: { batchId: string }) {
-  const { batches } = useTrackedRepos()
-  const batch = batches.find(b => b.id === batchId)
+  const { batches } = useTrackedRepos();
+  const batch = batches.find((b) => b.id === batchId);
 
-  if (!batch || batch.pods.length === 0) {
+  if (!batch || !batch.pods || batch.pods.length === 0) {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
           No pods added to this batch yet. Create a pod to get started.
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -33,6 +33,5 @@ export function PodList({ batchId }: { batchId: string }) {
         </Card>
       ))}
     </div>
-  )
+  );
 }
-

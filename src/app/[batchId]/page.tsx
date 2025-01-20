@@ -13,7 +13,8 @@ import { PlusCircle } from "lucide-react";
 import { CreatePodModal } from "@/components/create-pod-modal";
 import Link from "next/link";
 
-export default function BatchPage({ params }: { params: { batchId: string } }) {
+export default async function BatchPage(props: { params: Promise<{ batchId: string }> }) {
+  const params = await props.params;
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-8">

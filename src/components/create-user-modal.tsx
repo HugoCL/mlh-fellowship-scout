@@ -49,7 +49,7 @@ export function CreateUserModal({
       id: userId,
       fullName: fullName,
       username: username,
-      trackedPRs: [],
+      prs: [],
     });
 
     toast({

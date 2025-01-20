@@ -1,4 +1,6 @@
-import { Suspense } from "react";
+"use client";
+
+import { Suspense, use } from "react";
 import {
   Card,
   CardContent,
@@ -7,18 +9,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TrackedRepos } from "../../@/components/tracked-repos";
+import { TrackedRepos } from "@/components/tracked-repos";
 import { Toaster } from "@/components/ui/toaster";
 import { PlusCircle } from "lucide-react";
-import { CreatePRModal } from "../../@/components/create-pr-modal";
+import { CreatePRModal } from "@/components/create-pr-modal";
 import Link from "next/link";
 import { useTrackedRepos } from "../../../../contexts/tracked-repos-context";
 
-export default function UserPage({
-  params,
-}: {
-  params: { batchId: string; podId: string; userId: string };
+export default function UserPage(props: {
+  params: Promise<{ batchId: string; podId: string; userId: string }>;
 }) {
+  const params = use(props.params);
   const { batches } = useTrackedRepos();
   const batch = batches.find((b) => b.id === params.batchId);
   const pod = batch?.pods.find((p) => p.id === params.podId);

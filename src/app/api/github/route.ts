@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { Octokit } from '@octokit/rest'
+import { PullRequest, Commit, PullRequestAPIResponse } from '@/types/github'
 
 const octokit = new Octokit({ auth: process.env.GITHUB_ACCESS_TOKEN })
 
@@ -26,7 +27,13 @@ async function fetchCommitsForPR(owner: string, repo: string, pull_number: numbe
       html_url: commit.author.html_url,
       name: '',
       bio: '',
-    } : null,
+    } : {
+      login: '',
+      avatar_url: '',
+      html_url: '',
+      name: '',
+      bio: '',
+    },
   }))
 }
 
@@ -60,7 +67,7 @@ export async function GET(request: Request) {
 
     const commits = await fetchCommitsForPR(owner, repo, Number(pull_number))
 
-    const pullRequest: PullRequest = {
+    const pullRequest: PullRequestAPIResponse = {
       number: pr.number,
       title: pr.title,
       html_url: pr.html_url,
@@ -72,7 +79,6 @@ export async function GET(request: Request) {
         avatar_url: pr.user?.avatar_url || '',
         html_url: pr.user?.html_url || '',
         name: pr.user?.name || '',
-        bio: pr.user?.bio || '',
       },
       commits: commits,
     }

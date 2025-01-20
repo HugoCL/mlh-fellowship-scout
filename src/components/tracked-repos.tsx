@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { PullRequest, TrackedPR } from "@/types/github";
+import { PR } from "@prisma/client";
 
 export function TrackedRepos({
   batchId,
@@ -49,10 +51,10 @@ export function TrackedRepos({
       if (!response.ok) {
         throw new Error("Failed to refresh pull request data");
       }
-      const data = await response.json();
-      updatePR(batchId, podId, userId, pr.prId, {
+      const data: { pullRequest: PullRequest } = await response.json();
+      updatePR(batchId, podId, userId, pr.id!, {
         ...pr,
-        pullRequest: data.pullRequest,
+        ...data.pullRequest,
         lastChecked: new Date().toISOString(),
       });
       toast({
@@ -72,7 +74,7 @@ export function TrackedRepos({
     setExpandedItems((prev) => ({ ...prev, [itemKey]: !prev[itemKey] }));
   };
 
-  if (!user || user.trackedPRs.length === 0) {
+  if (!user || !user.prs || user.prs.length === 0) {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
@@ -85,7 +87,7 @@ export function TrackedRepos({
 
   return (
     <div className="space-y-4">
-      {user.trackedPRs.map((pr) => (
+      {user.prs.map((pr: TrackedPR) => (
         <Collapsible
           key={pr.prId}
           open={expandedItems[`pr-${pr.prId}`]}
@@ -97,21 +99,19 @@ export function TrackedRepos({
                 <div className="flex items-center space-x-2">
                   <GitPullRequest className="h-4 w-4 flex-shrink-0" />
                   <a
-                    href={pr.pullRequest?.html_url}
+                    href={pr.html_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-medium hover:underline truncate"
                   >
-                    {pr.pullRequest?.title || `PR #${pr.prId}`}
+                    {pr.title || `PR #${pr.prId}`}
                   </a>
                 </div>
                 <div className="flex space-x-2">
                   <Badge
-                    variant={
-                      pr.pullRequest?.state === "open" ? "default" : "secondary"
-                    }
+                    variant={pr.state === "open" ? "default" : "secondary"}
                   >
-                    {pr.pullRequest?.state || "Unknown"}
+                    {pr.state || "Unknown"}
                   </Badge>
                   <Button
                     variant="outline"
@@ -123,7 +123,7 @@ export function TrackedRepos({
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => deletePR(batchId, podId, userId, pr.prId)}
+                    onClick={() => deletePR(batchId, podId, userId, pr.id!)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -139,16 +139,15 @@ export function TrackedRepos({
                 </div>
               </div>
               <CollapsibleContent>
-                {pr.pullRequest && (
+                {pr.commits && (
                   <ScrollArea className="h-[200px] w-full mt-2">
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">
-                        Created:{" "}
-                        {new Date(pr.pullRequest.created_at).toLocaleString()}
+                        Created: {new Date(pr.created_at).toLocaleString()}
                       </p>
                       <div className="space-y-1">
                         <h6 className="text-sm font-medium">Commits:</h6>
-                        {pr.pullRequest.commits.map((commit) => (
+                        {pr.commits.map((commit) => (
                           <div
                             key={commit.sha}
                             className="flex items-center space-x-2 text-sm"

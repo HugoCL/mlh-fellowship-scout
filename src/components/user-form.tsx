@@ -36,7 +36,7 @@ export function UserForm() {
     addUser(selectedBatchId, selectedPodId, {
       id: userId,
       username: username,
-      trackedPRs: [],
+      prs: [],
     });
 
     toast({

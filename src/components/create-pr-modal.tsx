@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PullRequestAPIResponse } from "@/types/github";
 
 export function CreatePRModal({
   children,
@@ -38,7 +39,21 @@ export function CreatePRModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputMethod === "url" ? !prUrl : !owner || !repo || !prId) {
+    let finalOwner = owner;
+    let finalRepo = repo;
+
+    if (inputMethod === "url") {
+      const match = prUrl.match(/github\.com\/(.+?)\/(.+?)\/pull\/(\d+)/);
+      if (!match) {
+        toast({
+          title: "Error",
+          description: "Invalid PR URL",
+          variant: "destructive",
+        });
+        return;
+      }
+      [, finalOwner, finalRepo] = match;
+    } else if (!finalOwner || !finalRepo || !prId) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -52,20 +67,21 @@ export function CreatePRModal({
         `/api/github?${
           inputMethod === "url"
             ? `prUrl=${encodeURIComponent(prUrl)}`
-            : `owner=${owner}&repo=${repo}&pull_number=${prId}`
+            : `owner=${finalOwner}&repo=${finalRepo}&pull_number=${prId}`
         }`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch pull request data");
       }
-      const data = await response.json();
+      const data: { pullRequest: PullRequestAPIResponse } =
+        await response.json();
 
       addPR(batchId, podId, userId, {
-        repository: `${data.pullRequest.user.login}/${repo}`,
+        repository: `${finalOwner}/${finalRepo}`,
         prId: data.pullRequest.number,
         username: data.pullRequest.user.login,
         lastChecked: new Date().toISOString(),
-        pullRequest: data.pullRequest,
+        ...data.pullRequest,
       });
 
       toast({
