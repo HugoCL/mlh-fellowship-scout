@@ -31,7 +31,7 @@ export function UserList({
       {pod.users.map((user) => (
         <Card key={user.id}>
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-2">{user.fullName}</h3>
+            <h3 className="text-lg font-semibold mb-2">{user.full_name}</h3>
             <p className="text-sm text-muted-foreground mb-2">
               GitHub: {user.username}
             </p>

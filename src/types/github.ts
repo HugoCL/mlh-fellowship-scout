@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client'
+
 export interface GitHubUser {
   login: string
   avatar_url: string
@@ -6,7 +8,6 @@ export interface GitHubUser {
 }
 
 export interface PullRequestAPIResponse {
-
   number: number
   title: string
   html_url: string
@@ -14,10 +15,10 @@ export interface PullRequestAPIResponse {
   created_at: string
   updated_at: string
   user: GitHubUser
-  commits: Commit[]
-
+  commits: GitHubCommit[]
 }
-export interface Commit {
+
+export interface GitHubCommit {
   sha: string
   html_url: string
   commit: {
@@ -30,48 +31,39 @@ export interface Commit {
   author: GitHubUser
 }
 
-export interface TrackedPR {
-  // Database ID
-  id?: string
-  // GitHub Repo. Ex: "mlh/mlh-pod-4.1.0"
-  repository: string
-  // GitHub PR ID, found in URL
-  prId: number
-  // GitHub username of the user who added the PR
-  username: string
-  // User DB ID
-  userId?: string
-  lastChecked?: Date | string
-  // PR Number
-  number: number
-  // PR Title
-  title: string
-  // Link to PR
-  html_url: string
-  // PR State
-  state: string
-  created_at: string
-  updated_at: string
-  user: GitHubUser
-  commits: Commit[]
-}
+export type PRWithCommits = Prisma.PRGetPayload<{
+  include: {
+    commits: true
+  }
+}>
 
-export interface TrackedUser {
-  id: string
-  username: string
-  fullName: string
-  prs: TrackedPR[]
-}
+export type PopulatedBatch = Prisma.BatchGetPayload<{
+  include: {
+    pods: {
+      include: {
+        users: {
+          include: {
+            prs: {
+              include: {
+                commits: true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}>
 
-export interface Pod {
-  id: string
-  name: string
-  users: TrackedUser[]
-}
+export type PopulatedUser = Prisma.UserGetPayload<{
+  include: {
+    prs: {
+      include: {
+        commits: true
+      }
+    }
+  }
+}>
 
-export interface Batch {
-  id: string
-  name: string
-  pods: Pod[]
-}
+export type { Batch, Pod, User, PR, Commit } from '@prisma/client'
 

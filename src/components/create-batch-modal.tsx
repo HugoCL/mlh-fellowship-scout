@@ -37,7 +37,6 @@ export function CreateBatchModal({ children }: { children: React.ReactNode }) {
       await addBatch({
         id: batchId,
         name: batchName,
-        pods: [],
       });
 
       toast({

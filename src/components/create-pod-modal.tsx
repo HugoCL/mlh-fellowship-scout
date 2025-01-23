@@ -39,10 +39,10 @@ export function CreatePodModal({
       return;
     }
 
-    addPod(batchId, {
+    addPod({
       id: podId,
       name: podName,
-      users: [],
+      batch_id: batchId,
     });
 
     toast({

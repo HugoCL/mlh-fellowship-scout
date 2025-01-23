@@ -47,9 +47,9 @@ export function CreateUserModal({
 
     addUser(batchId, podId, {
       id: userId,
-      fullName: fullName,
+      full_name: fullName,
       username: username,
-      prs: [],
+      pod_id: podId,
     });
 
     toast({

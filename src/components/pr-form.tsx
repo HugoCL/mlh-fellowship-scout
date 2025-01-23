@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { PR } from "@prisma/client";
+import { PullRequestAPIResponse } from "@/types/github";
 
 export function PRForm() {
   const [selectedBatchId, setSelectedBatchId] = useState("");
@@ -54,19 +56,18 @@ export function PRForm() {
       if (!response.ok) {
         throw new Error("Failed to fetch pull request data");
       }
-      const data = await response.json();
+      const data: PullRequestAPIResponse = await response.json();
 
       addPR(selectedBatchId, selectedPodId, selectedUserId, {
-        repository: `${data.pullRequest.user.login}/${repo}`,
-        prId: data.pullRequest.number,
-        username: data.pullRequest.user.login,
-        lastChecked: new Date().toISOString(),
-        pullRequest: data.pullRequest,
+        repository: `${data.user.login}/${repo}`,
+        pr_id: data.number,
+        username: data.user.login,
+        last_checked: new Date(),
       });
 
       toast({
         title: "Success",
-        description: `PR #${data.pullRequest.number} added successfully`,
+        description: `PR #${data.number} added successfully`,
       });
 
       setPrUrl("");

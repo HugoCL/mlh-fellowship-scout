@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { PullRequest, TrackedPR } from "@/types/github";
+import { PullRequestAPIResponse, PRWithCommits } from "@/types/github";
 import { PR } from "@prisma/client";
 
 export function TrackedRepos({
@@ -42,20 +42,33 @@ export function TrackedRepos({
   const pod = batch?.pods.find((p) => p.id === podId);
   const user = pod?.users.find((u) => u.id === userId);
 
-  const handleRefresh = async (pr: TrackedPR) => {
+  const handleRefresh = async (pr: PRWithCommits) => {
     try {
       const [owner, repo] = pr.repository.split("/");
       const response = await fetch(
-        `/api/github?owner=${owner}&repo=${repo}&pull_number=${pr.prId}`
+        `/api/github?owner=${owner}&repo=${repo}&pull_number=${pr.id}`
       );
       if (!response.ok) {
         throw new Error("Failed to refresh pull request data");
       }
-      const data: { pullRequest: PullRequest } = await response.json();
+      const data: { pullRequest: PullRequestAPIResponse } =
+        await response.json();
       updatePR(batchId, podId, userId, pr.id!, {
         ...pr,
-        ...data.pullRequest,
-        lastChecked: new Date().toISOString(),
+        title: data.pullRequest.title,
+        state: data.pullRequest.state,
+        html_url: data.pullRequest.html_url,
+        created_at: new Date(data.pullRequest.created_at),
+        updated_at: new Date(),
+        commits: data.pullRequest.commits.map((commit, index) => ({
+          id: index,
+          pr_id: pr.pr_id,
+          sha: commit.sha,
+          message: commit.commit.message,
+          author_name: commit.commit.author.name,
+          author_date: new Date(commit.commit.author.date),
+          html_url: commit.html_url,
+        })),
       });
       toast({
         title: "Success",
@@ -87,11 +100,11 @@ export function TrackedRepos({
 
   return (
     <div className="space-y-4">
-      {user.prs.map((pr: TrackedPR) => (
+      {user.prs.map((pr: PRWithCommits) => (
         <Collapsible
-          key={pr.prId}
-          open={expandedItems[`pr-${pr.prId}`]}
-          onOpenChange={() => toggleExpand(`pr-${pr.prId}`)}
+          key={pr.id}
+          open={expandedItems[`pr-${pr.id}`]}
+          onOpenChange={() => toggleExpand(`pr-${pr.id}`)}
         >
           <Card>
             <CardContent className="p-4">
@@ -99,12 +112,12 @@ export function TrackedRepos({
                 <div className="flex items-center space-x-2">
                   <GitPullRequest className="h-4 w-4 flex-shrink-0" />
                   <a
-                    href={pr.html_url}
+                    href={pr.html_url || undefined}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-medium hover:underline truncate"
                   >
-                    {pr.title || `PR #${pr.prId}`}
+                    {pr.title || `PR #${pr.id}`}
                   </a>
                 </div>
                 <div className="flex space-x-2">
@@ -129,7 +142,7 @@ export function TrackedRepos({
                   </Button>
                   <CollapsibleTrigger asChild>
                     <Button variant="outline" size="icon">
-                      {expandedItems[`pr-${pr.prId}`] ? (
+                      {expandedItems[`pr-${pr.id}`] ? (
                         <ChevronUp className="h-4 w-4" />
                       ) : (
                         <ChevronDown className="h-4 w-4" />
@@ -143,7 +156,10 @@ export function TrackedRepos({
                   <ScrollArea className="h-[200px] w-full mt-2">
                     <div className="space-y-2">
                       <p className="text-sm text-muted-foreground">
-                        Created: {new Date(pr.created_at).toLocaleString()}
+                        Created:{" "}
+                        {pr.created_at
+                          ? new Date(pr.created_at).toLocaleString()
+                          : "Unknown"}
                       </p>
                       <div className="space-y-1">
                         <h6 className="text-sm font-medium">Commits:</h6>
@@ -159,7 +175,7 @@ export function TrackedRepos({
                               rel="noopener noreferrer"
                               className="hover:underline truncate"
                             >
-                              {commit.commit.message}
+                              {commit.message}
                             </a>
                           </div>
                         ))}

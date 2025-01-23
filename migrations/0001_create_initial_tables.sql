@@ -1,4 +1,3 @@
--- Migration number: 0001 	 2025-01-19T17:50:47.706Z
 -- CreateTable
 CREATE TABLE "Batch" (
     "id" TEXT NOT NULL PRIMARY KEY,
@@ -9,33 +8,33 @@ CREATE TABLE "Batch" (
 CREATE TABLE "Pod" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
-    "batchId" TEXT NOT NULL,
-    CONSTRAINT "Pod_batchId_fkey" FOREIGN KEY ("batchId") REFERENCES "Batch" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "batch_id" TEXT NOT NULL,
+    CONSTRAINT "Pod_batch_id_fkey" FOREIGN KEY ("batch_id") REFERENCES "Batch" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "fullName" TEXT NOT NULL,
+    "full_name" TEXT NOT NULL,
     "username" TEXT NOT NULL,
-    "podId" TEXT NOT NULL,
-    CONSTRAINT "User_podId_fkey" FOREIGN KEY ("podId") REFERENCES "Pod" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "pod_id" TEXT NOT NULL,
+    CONSTRAINT "User_pod_id_fkey" FOREIGN KEY ("pod_id") REFERENCES "Pod" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
 CREATE TABLE "PR" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "repository" TEXT NOT NULL,
-    "prId" INTEGER NOT NULL,
+    "pr_id" INTEGER NOT NULL,
     "username" TEXT NOT NULL,
-    "lastChecked" DATETIME NOT NULL,
-    "userId" TEXT NOT NULL,
+    "last_checked" DATETIME NOT NULL,
+    "user_id" TEXT NOT NULL,
     "title" TEXT,
-    "htmlUrl" TEXT,
+    "html_url" TEXT,
     "state" TEXT,
-    "createdAt" DATETIME,
-    "updatedAt" DATETIME,
-    CONSTRAINT "PR_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "created_at" DATETIME,
+    "updated_at" DATETIME,
+    CONSTRAINT "PR_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -43,8 +42,9 @@ CREATE TABLE "Commit" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "sha" TEXT NOT NULL,
     "message" TEXT NOT NULL,
-    "authorName" TEXT NOT NULL,
-    "authorDate" DATETIME NOT NULL,
-    "prId" INTEGER NOT NULL,
-    CONSTRAINT "Commit_prId_fkey" FOREIGN KEY ("prId") REFERENCES "PR" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+    "author_name" TEXT NOT NULL,
+    "author_date" DATETIME NOT NULL,
+    "html_url" TEXT NOT NULL,
+    "pr_id" INTEGER NOT NULL,
+    CONSTRAINT "Commit_pr_id_fkey" FOREIGN KEY ("pr_id") REFERENCES "PR" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );

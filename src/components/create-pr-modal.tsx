@@ -77,11 +77,24 @@ export function CreatePRModal({
         await response.json();
 
       addPR(batchId, podId, userId, {
+        user_id: userId,
         repository: `${finalOwner}/${finalRepo}`,
-        prId: data.pullRequest.number,
+        pr_id: data.pullRequest.number,
         username: data.pullRequest.user.login,
-        lastChecked: new Date().toISOString(),
-        ...data.pullRequest,
+        last_checked: new Date(),
+        html_url: data.pullRequest.html_url,
+        state: data.pullRequest.state,
+        created_at: new Date(data.pullRequest.created_at),
+        updated_at: new Date(),
+        title: data.pullRequest.title,
+        commits: data.pullRequest.commits.map((commit, index) => ({
+          pr_id: data.pullRequest.number,
+          sha: commit.sha,
+          message: commit.commit.message,
+          author_name: commit.commit.author.name,
+          author_date: new Date(commit.commit.author.date),
+          html_url: commit.html_url,
+        })),
       });
 
       toast({

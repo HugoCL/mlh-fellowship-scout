@@ -4,43 +4,54 @@ import { createContext, useContext, useState, useEffect } from "react";
 import type {
   Batch,
   Pod,
-  TrackedUser,
-  TrackedPR,
-  PullRequest,
+  User,
+  PRWithCommits,
+  PR,
+  PopulatedBatch,
+  PopulatedUser,
+  Commit,
 } from "@/types/github";
+import { PrsPostResponse } from "@/app/api/prs/route";
 
 interface TrackedReposContextType {
-  batches: Batch[];
+  batches: PopulatedBatch[];
   addBatch: (batch: Batch) => Promise<void>;
-  updateBatch: (batchId: string, updatedBatch: Partial<Batch>) => Promise<void>;
+  updateBatch: (
+    batchId: string,
+    updatedBatch: Partial<PopulatedBatch>
+  ) => Promise<void>;
   deleteBatch: (batchId: string) => Promise<void>;
-  addPod: (batchId: string, pod: Pod) => Promise<void>;
+  addPod: (pod: Pod) => Promise<void>;
   updatePod: (
     batchId: string,
     podId: string,
     updatedPod: Partial<Pod>
   ) => Promise<void>;
   deletePod: (batchId: string, podId: string) => Promise<void>;
-  addUser: (batchId: string, podId: string, user: TrackedUser) => Promise<void>;
+  addUser: (
+    batchId: string,
+    podId: string,
+    user: Partial<User>
+  ) => Promise<void>;
   updateUser: (
     batchId: string,
     podId: string,
     userId: string,
-    updatedUser: Partial<TrackedUser>
+    updatedUser: Partial<User>
   ) => Promise<void>;
   deleteUser: (batchId: string, podId: string, userId: string) => Promise<void>;
   addPR: (
     batchId: string,
     podId: string,
     userId: string,
-    pr: TrackedPR
+    pr: Partial<PR> & { commits?: Partial<Commit>[] }
   ) => Promise<void>;
   updatePR: (
     batchId: string,
     podId: string,
     userId: string,
     prId: number,
-    updatedPR: Partial<TrackedPR>
+    updatedPR: Partial<PRWithCommits>
   ) => Promise<void>;
   deletePR: (
     batchId: string,
@@ -59,7 +70,7 @@ export function TrackedReposProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [batches, setBatches] = useState<Batch[]>([]);
+  const [batches, setBatches] = useState<PopulatedBatch[]>([]);
 
   useEffect(() => {
     fetchBatches();
@@ -67,7 +78,7 @@ export function TrackedReposProvider({
 
   const fetchBatches = async () => {
     const response = await fetch("/api/batches");
-    const data: Batch[] = await response.json();
+    const data: PopulatedBatch[] = await response.json();
     setBatches(data);
   };
 
@@ -77,17 +88,20 @@ export function TrackedReposProvider({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(batch),
     });
-    const newBatch: Batch = await response.json();
+    const newBatch: PopulatedBatch = await response.json();
     setBatches((prev) => [...prev, newBatch]);
   };
 
-  const updateBatch = async (batchId: string, updatedBatch: Partial<Batch>) => {
+  const updateBatch = async (
+    batchId: string,
+    updatedBatch: Partial<PopulatedBatch>
+  ) => {
     const response = await fetch(`/api/batches/${batchId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedBatch),
     });
-    const updated: Partial<TrackedUser> = await response.json();
+    const updated: Partial<User> = await response.json();
     setBatches((prev) =>
       prev.map((batch) =>
         batch.id === batchId ? { ...batch, ...updated } : batch
@@ -100,17 +114,20 @@ export function TrackedReposProvider({
     setBatches((prev) => prev.filter((batch) => batch.id !== batchId));
   };
 
-  const addPod = async (batchId: string, pod: Pod) => {
+  const addPod = async (pod: Pod) => {
     const response = await fetch("/api/pods", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...pod, batchId }),
+      body: JSON.stringify({ ...pod }),
     });
     const newPod: Pod = await response.json();
     setBatches((prev) =>
       prev.map((batch) =>
-        batch.id === batchId
-          ? { ...batch, pods: [...batch.pods, newPod] }
+        batch.id === pod.batch_id
+          ? {
+              ...batch,
+              pods: [...(batch.pods || []), { ...newPod, users: [] }],
+            }
           : batch
       )
     );
@@ -155,13 +172,17 @@ export function TrackedReposProvider({
     );
   };
 
-  const addUser = async (batchId: string, podId: string, user: TrackedUser) => {
+  const addUser = async (
+    batchId: string,
+    podId: string,
+    user: Partial<User>
+  ) => {
     const response = await fetch("/api/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...user, podId }),
     });
-    const newUser: TrackedUser = await response.json();
+    const newUser: PopulatedUser = await response.json();
     setBatches((prev) =>
       prev.map((batch) =>
         batch.id === batchId
@@ -182,7 +203,7 @@ export function TrackedReposProvider({
     batchId: string,
     podId: string,
     userId: string,
-    updatedUser: Partial<TrackedUser>
+    updatedUser: Partial<User>
   ) => {
     const response = await fetch(`/api/users/${userId}`, {
       method: "PUT",
@@ -238,7 +259,7 @@ export function TrackedReposProvider({
     batchId: string,
     podId: string,
     userId: string,
-    pr: TrackedPR
+    pr: Partial<PR> & { commits?: Partial<Commit>[] }
   ) => {
     const response = await fetch("/api/prs", {
       method: "POST",
@@ -246,15 +267,10 @@ export function TrackedReposProvider({
       body: JSON.stringify({
         ...pr,
         userId,
-        commits: pr.commits?.map((commit) => ({
-          sha: commit.sha,
-          message: commit.commit.message,
-          authorName: commit.commit.author.name,
-          authorDate: commit.commit.author.date,
-        })),
+        commits: pr.commits,
       }),
     });
-    const newPR = (await response.json()) as TrackedPR;
+    const newPR: PrsPostResponse = await response.json();
     setBatches((prev) =>
       prev.map((batch) =>
         batch.id === batchId
@@ -268,7 +284,7 @@ export function TrackedReposProvider({
                         user.id === userId
                           ? {
                               ...user,
-                              prs: [...(user.prs || []), newPR],
+                              prs: [...(user.prs || []), newPR.pr],
                             }
                           : user
                       ),
@@ -286,7 +302,7 @@ export function TrackedReposProvider({
     podId: string,
     userId: string,
     prDbId: number,
-    updatedPR: Partial<TrackedPR>
+    updatedPR: Partial<PRWithCommits>
   ) => {
     const response = await fetch(`/api/prs`, {
       method: "PUT",
@@ -296,9 +312,9 @@ export function TrackedReposProvider({
         ...updatedPR,
         commits: updatedPR.commits?.map((commit) => ({
           sha: commit.sha,
-          message: commit.commit.message,
-          authorName: commit.commit.author.name,
-          authorDate: commit.commit.author.date,
+          message: commit.message,
+          author_name: commit.author_name,
+          author_date: commit.author_date,
         })),
       }),
     });
@@ -317,7 +333,7 @@ export function TrackedReposProvider({
                           ? {
                               ...user,
                               prs: user.prs.map((pr) =>
-                                pr.prId === prDbId
+                                pr.id === prDbId
                                   ? { ...pr, ...(updated || {}) }
                                   : pr
                               ),

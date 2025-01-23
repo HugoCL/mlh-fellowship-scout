@@ -1,30 +1,30 @@
 import { NextResponse } from 'next/server'
 import { Octokit } from '@octokit/rest'
-import { PullRequest, Commit, PullRequestAPIResponse } from '@/types/github'
+import { PR, GitHubCommit, PullRequestAPIResponse } from '@/types/github'
 
 const octokit = new Octokit({ auth: process.env.GITHUB_ACCESS_TOKEN })
 
-async function fetchCommitsForPR(owner: string, repo: string, pull_number: number): Promise<Commit[]> {
+async function fetchCommitsForPR(owner: string, repo: string, pull_number: number): Promise<GitHubCommit[]> {
   const { data } = await octokit.pulls.listCommits({
     owner,
     repo,
     pull_number,
   })
 
-  return data.map(commit => ({
-    sha: commit.sha,
-    html_url: commit.html_url,
+  return data.map(gh_data => ({
+    sha: gh_data.sha,
+    html_url: gh_data.html_url,
     commit: {
-      message: commit.commit.message,
+      message: gh_data.commit.message,
       author: {
-        name: commit.commit.author?.name || '',
-        date: commit.commit.author?.date || '',
+        name: gh_data.commit.author?.name || '',
+        date: gh_data.commit.author?.date || '',
       }
     },
-    author: commit.author ? {
-      login: commit.author.login,
-      avatar_url: commit.author.avatar_url,
-      html_url: commit.author.html_url,
+    author: gh_data.author ? {
+      login: gh_data.author.login,
+      avatar_url: gh_data.author.avatar_url,
+      html_url: gh_data.author.html_url,
       name: '',
       bio: '',
     } : {

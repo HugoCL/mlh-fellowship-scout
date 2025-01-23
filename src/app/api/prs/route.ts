@@ -1,34 +1,48 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
-import { TrackedPR } from '@/types/github'
-import { PR } from '@prisma/client'
+import { PRWithCommits } from '@/types/github'
+import { Commit, PR } from '@prisma/client'
 
+export interface PrsPostResponse {
+  pr: PRWithCommits
+  commits: Commit[]
+}
 
-export async function POST(request: Request) {
-  const data: TrackedPR = await request.json()
+export async function POST(request: Request): Promise<NextResponse<PrsPostResponse>> {
+  const data: PRWithCommits = await request.json()
   const pr = await prisma.pR.create({
     data: {
       repository: data.repository,
-      prId: data.prId,
+      pr_id: data.pr_id,
       username: data.username,
-      userId: data.userId || '',
+      user_id: data.user_id || '',
       title: data.title,
-      htmlUrl: data.html_url,
+      html_url: data.html_url,
       state: data.state,
-      lastChecked: data.lastChecked ? new Date(data.lastChecked) : new Date(),
-      createdAt: data.created_at ? new Date(data.created_at) : undefined,
-      updatedAt: data.updated_at ? new Date(data.updated_at) : undefined
+      last_checked: data.last_checked ? new Date(data.last_checked) : new Date(),
+      created_at: data.created_at ? new Date(data.created_at) : undefined,
+      updated_at: data.updated_at ? new Date(data.updated_at) : undefined,
     }
   })
-  const commits = await prisma.commit.createMany({
+  await prisma.commit.createMany({
     data: data.commits.map(commit => ({
-      prId: pr.id,
+      pr_id: pr.id,
       sha: commit.sha,
-      htmlUrl: commit.html_url,
-      message: commit.commit.message,
+      message: commit.message,
+      author_name: commit.author_name,
+      author_date: new Date(commit.author_date),
+      html_url: commit.html_url
     }))
   })
-  return NextResponse.json(pr)
+
+  const commits = await prisma.commit.findMany({
+    where: { pr_id: pr.id }
+  })
+
+  return NextResponse.json({
+    pr: { ...pr, commits },
+    commits
+  })
 }
 
 export async function PUT(request: Request) {
@@ -37,28 +51,28 @@ export async function PUT(request: Request) {
   const {
     id,
     repository,
-    prId,
+    pr_id,
     username,
     title,
-    htmlUrl,
+    html_url,
     state,
-    lastChecked,
-    createdAt,
-    updatedAt
+    last_checked,
+    created_at,
+    updated_at
   } = data;
 
   const pr = await prisma.pR.update({
     where: { id },
     data: {
       repository,
-      prId,
+      pr_id,
       username,
       title,
-      htmlUrl,
+      html_url,
       state,
-      lastChecked: lastChecked ? new Date(lastChecked) : undefined,
-      createdAt: createdAt ? new Date(createdAt) : undefined,
-      updatedAt: updatedAt ? new Date(updatedAt) : undefined
+      last_checked: last_checked ? new Date(last_checked) : undefined,
+      created_at: created_at ? new Date(created_at) : undefined,
+      updated_at: updated_at ? new Date(updated_at) : undefined
     }
   })
 

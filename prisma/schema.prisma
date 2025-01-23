@@ -15,46 +15,45 @@ model Batch {
 }
 
 model Pod {
-  id      String @id
-  name    String
-  batchId String
-  batch   Batch  @relation(fields: [batchId], references: [id])
-  users   User[]
+  id       String @id
+  name     String
+  batch_id String
+  batch    Batch  @relation(fields: [batch_id], references: [id])
+  users    User[]
 }
 
 model User {
-  id       String @id
-  fullName String
-  username String
-  podId    String
-  pod      Pod    @relation(fields: [podId], references: [id])
-  prs      PR[]
+  id        String @id
+  full_name String
+  username  String
+  pod_id    String
+  pod       Pod    @relation(fields: [pod_id], references: [id])
+  prs       PR[]
 }
 
 model PR {
-  id         Int      @id @default(autoincrement())
-  repository String
-  prId       Int
-  username   String
-  lastChecked DateTime
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  title      String?
-  htmlUrl    String?
-  state      String?
-  createdAt  DateTime?
-  updatedAt  DateTime?
-
-  Commit Commit[]
+  id           Int       @id @default(autoincrement())
+  repository   String
+  pr_id        Int      
+  username     String
+  last_checked DateTime  
+  user_id      String   
+  user         User     @relation(fields: [user_id], references: [id])
+  title        String?
+  html_url     String?  
+  state        String?
+  created_at   DateTime? 
+  updated_at   DateTime? 
+  commits      Commit[]
 }
 
 model Commit {
-  id        Int      @id @default(autoincrement())
-  sha       String
-  message   String
-  authorName String
-  authorDate DateTime
-  prId      Int
-  pr        PR       @relation(fields: [prId], references: [id])
+  id           Int      @id @default(autoincrement())
+  sha          String
+  message      String
+  author_name  String   
+  author_date  DateTime
+  html_url     String
+  pr_id        Int      
+  pr           PR       @relation(fields: [pr_id], references: [id])
 }
-

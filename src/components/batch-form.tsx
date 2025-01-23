@@ -27,7 +27,6 @@ export function BatchForm() {
     addBatch({
       id: batchId,
       name: batchName,
-      pods: [],
     });
 
     toast({

@@ -32,10 +32,10 @@ export function PodForm() {
       return;
     }
 
-    addPod(selectedBatchId, {
+    addPod({
       id: podId,
       name: podName,
-      users: [],
+      batch_id: selectedBatchId,
     });
 
     toast({

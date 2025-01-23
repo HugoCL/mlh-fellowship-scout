@@ -34,7 +34,7 @@ export default function UserPage(props: {
           >
             &larr; Back to Pod
           </Link>
-          <h1 className="text-4xl font-bold mt-2">User: {user?.fullName}</h1>
+          <h1 className="text-4xl font-bold mt-2">User: {user?.full_name}</h1>
           <p className="text-xl text-muted-foreground">
             GitHub: {user?.username}
           </p>

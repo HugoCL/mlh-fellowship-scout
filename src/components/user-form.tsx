@@ -17,14 +17,14 @@ import { useToast } from "@/hooks/use-toast";
 export function UserForm() {
   const [selectedBatchId, setSelectedBatchId] = useState("");
   const [selectedPodId, setSelectedPodId] = useState("");
-  const [userId, setUserId] = useState("");
+  const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const { batches, addUser } = useTrackedRepos();
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedBatchId || !selectedPodId || !userId || !username) {
+    if (!selectedBatchId || !selectedPodId || !username) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -34,9 +34,9 @@ export function UserForm() {
     }
 
     addUser(selectedBatchId, selectedPodId, {
-      id: userId,
       username: username,
-      prs: [],
+      full_name: fullName,
+      pod_id: selectedPodId,
     });
 
     toast({
@@ -46,7 +46,7 @@ export function UserForm() {
 
     setSelectedBatchId("");
     setSelectedPodId("");
-    setUserId("");
+    setFullName("");
     setUsername("");
   };
 
@@ -98,10 +98,10 @@ export function UserForm() {
               User ID
             </label>
             <Input
-              id="userId"
-              value={userId}
-              onChange={(e) => setUserId(e.target.value)}
-              placeholder="e.g., user123"
+              id="full_name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="e.g., John Doe"
             />
           </div>
           <div className="space-y-2">
