@@ -46,8 +46,7 @@ export async function POST(request: Request): Promise<NextResponse<PrsPostRespon
 }
 
 export async function PUT(request: Request) {
-  const data: PR = await request.json()
-
+  const data: PRWithCommits = await request.json()
   const {
     id,
     repository,
@@ -58,10 +57,11 @@ export async function PUT(request: Request) {
     state,
     last_checked,
     created_at,
-    updated_at
+    updated_at,
+    commits
   } = data;
 
-  const pr = await prisma.pR.update({
+  const updatePR = prisma.pR.update({
     where: { id },
     data: {
       repository,
@@ -72,16 +72,42 @@ export async function PUT(request: Request) {
       state,
       last_checked: last_checked ? new Date(last_checked) : undefined,
       created_at: created_at ? new Date(created_at) : undefined,
-      updated_at: updated_at ? new Date(updated_at) : undefined
+      updated_at: updated_at ? new Date(updated_at) : undefined,
     }
-  })
+  });
 
-  return NextResponse.json(pr)
+  const deleteCommits = prisma.commit.deleteMany({
+    where: { pr_id: id }
+  });
+
+  const createCommits = prisma.commit.createMany({
+    data: commits.map(commit => ({
+      pr_id: id,
+      sha: commit.sha,
+      message: commit.message,
+      author_name: commit.author_name,
+      author_date: new Date(commit.author_date),
+      html_url: commit.html_url
+    }))
+  });
+
+  const [updatedPr] = await prisma.$transaction([
+    updatePR,
+    deleteCommits,
+    createCommits
+  ]);
+
+  return NextResponse.json(updatedPr);
 }
 
 export async function DELETE(request: Request) {
   const { id }: { id: number } = await request.json()
-  const result = await prisma.pR.delete({
+
+  await prisma.commit.deleteMany({
+    where: { pr_id: id }
+  })
+
+  await prisma.pR.delete({
     where: { id }
   })
 

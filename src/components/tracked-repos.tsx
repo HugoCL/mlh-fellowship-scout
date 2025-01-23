@@ -46,7 +46,7 @@ export function TrackedRepos({
     try {
       const [owner, repo] = pr.repository.split("/");
       const response = await fetch(
-        `/api/github?owner=${owner}&repo=${repo}&pull_number=${pr.id}`
+        `/api/github?owner=${owner}&repo=${repo}&pull_number=${pr.pr_id}`
       );
       if (!response.ok) {
         throw new Error("Failed to refresh pull request data");
@@ -108,21 +108,16 @@ export function TrackedRepos({
         >
           <Card>
             <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center space-x-2">
-                  <GitPullRequest className="h-4 w-4 flex-shrink-0" />
-                  <a
-                    href={pr.html_url || undefined}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium hover:underline truncate"
-                  >
-                    {pr.title || `PR #${pr.id}`}
-                  </a>
-                </div>
-                <div className="flex space-x-2">
+              <div className="grid grid-cols-1 gap-4 mb-2 sm:flex sm:items-center sm:justify-between">
+                <div className="flex items-center space-x-2 justify-end sm:order-2">
                   <Badge
-                    variant={pr.state === "open" ? "default" : "secondary"}
+                    className={
+                      pr.state === "open"
+                        ? "bg-yellow-700"
+                        : pr.state === "closed"
+                        ? "bg-green-700"
+                        : "bg-gray-700"
+                    }
                   >
                     {pr.state || "Unknown"}
                   </Badge>
@@ -149,6 +144,17 @@ export function TrackedRepos({
                       )}
                     </Button>
                   </CollapsibleTrigger>
+                </div>
+                <div className="flex items-center space-x-2 min-w-0 sm:order-1">
+                  <GitPullRequest className="h-4 w-4 flex-shrink-0" />
+                  <a
+                    href={pr.html_url || undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium hover:underline truncate"
+                  >
+                    {pr.title || `PR #${pr.id}`}
+                  </a>
                 </div>
               </div>
               <CollapsibleContent>

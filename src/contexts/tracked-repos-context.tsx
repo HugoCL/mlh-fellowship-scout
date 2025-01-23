@@ -310,12 +310,7 @@ export function TrackedReposProvider({
       body: JSON.stringify({
         id: prDbId,
         ...updatedPR,
-        commits: updatedPR.commits?.map((commit) => ({
-          sha: commit.sha,
-          message: commit.message,
-          author_name: commit.author_name,
-          author_date: commit.author_date,
-        })),
+        commits: updatedPR.commits,
       }),
     });
     const updated = await response.json();

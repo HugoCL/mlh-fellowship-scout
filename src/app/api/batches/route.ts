@@ -9,7 +9,11 @@ export async function GET() {
         include: {
           users: {
             include: {
-              prs: true
+              prs: {
+                include: {
+                  commits: true
+                }
+              }
             }
           }
         }
