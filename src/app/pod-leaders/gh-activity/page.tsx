@@ -1,11 +1,5 @@
 import { Suspense } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
 import { PlusCircle } from "lucide-react";
@@ -14,7 +8,7 @@ import { CreateBatchModal } from "@/components/create-batch-modal";
 import { BatchList } from "@/components/batch-list";
 
 export default async function Dashboard() {
-  const batches = await prisma.batch.findMany({
+  await prisma.batch.findMany({
     include: {
       pods: {
         include: {

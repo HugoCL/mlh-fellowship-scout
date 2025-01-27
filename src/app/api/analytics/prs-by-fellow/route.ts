@@ -27,7 +27,6 @@ export async function GET() {
         if (pr.state === "open") acc[repo].open++
         else if (pr.state === "closed") acc[repo].closed++
 
-        const username = pr.user?.username || 'unknown'
         const fullName = pr.user?.full_name || 'unknown'
         const fellowKey = `${fullName}`
 

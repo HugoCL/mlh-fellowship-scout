@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { Octokit } from '@octokit/rest'
-import { PR, GitHubCommit, PullRequestAPIResponse } from '@/types/github'
+import { GitHubCommit, PullRequestAPIResponse } from '@/types/github'
 import { auth } from '@clerk/nextjs/server'
 
 const octokit = new Octokit({ auth: process.env.GITHUB_ACCESS_TOKEN })

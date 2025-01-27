@@ -16,7 +16,6 @@
     "@clerk/nextjs": "^6.10.2",
     "@clerk/themes": "^2.2.12",
     "@octokit/rest": "^21.1.0",
-    "@opennextjs/cloudflare": "^0.3.8",
     "@prisma/adapter-d1": "^6.2.1",
     "@prisma/client": "^6.2.1",
     "@radix-ui/react-avatar": "^1.1.2",
@@ -45,6 +44,8 @@
     "@cloudflare/next-on-pages": "1",
     "@cloudflare/workers-types": "^4.20250109.0",
     "@eslint/eslintrc": "^3",
+    "@opennextjs/aws": "^3.4.1",
+    "@opennextjs/cloudflare": "^0.3.10",
     "@types/node": "^20.8.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -55,6 +56,6 @@
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
     "vercel": "^39.3.0",
-    "wrangler": "^3.103.2"
+    "wrangler": "^3.105.1"
   }
 }

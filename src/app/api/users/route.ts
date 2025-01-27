@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { User } from '@prisma/client'
-import { PopulatedUser } from '@/types/github'
 import { auth } from '@clerk/nextjs/server'
 
 export async function POST(request: Request<User>) {

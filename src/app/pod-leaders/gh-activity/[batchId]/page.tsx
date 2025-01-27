@@ -9,14 +9,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { PodList } from "@/components/pod-list";
 import { Toaster } from "@/components/ui/toaster";
-import { ChartColumn, ChevronDown, PlusCircle, SearchIcon } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import { CreatePodModal } from "@/components/create-pod-modal";
-import Link from "next/link";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+
 import React from "react";
 import { AnalyticsSection } from "@/components/analytics-section";
 import { Separator } from "@/components/ui/separator";

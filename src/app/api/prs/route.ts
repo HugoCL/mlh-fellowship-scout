@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { PRWithCommits } from '@/types/github'
-import { Commit, PR } from '@prisma/client'
+import { Commit } from '@prisma/client'
 import { auth } from '@clerk/nextjs/server'
 
 export interface PrsPostResponse {

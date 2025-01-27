@@ -3,11 +3,10 @@
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { PRData, RepoStats } from "@/types/analytics";
+import { RepoStats } from "@/types/analytics";
 import {
   BarChart,
   Bar,
