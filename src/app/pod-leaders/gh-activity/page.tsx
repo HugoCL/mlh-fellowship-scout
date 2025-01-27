@@ -43,7 +43,6 @@ export default async function Dashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Batches</CardTitle>
-          <CardDescription>Overview of all batches</CardDescription>
         </CardHeader>
         <CardContent>
           <Suspense fallback={<div>Loading batches...</div>}>

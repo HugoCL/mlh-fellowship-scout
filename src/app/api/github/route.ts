@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { Octokit } from '@octokit/rest'
 import { PR, GitHubCommit, PullRequestAPIResponse } from '@/types/github'
+import { auth } from '@clerk/nextjs/server'
 
 const octokit = new Octokit({ auth: process.env.GITHUB_ACCESS_TOKEN })
 
@@ -38,6 +39,13 @@ async function fetchCommitsForPR(owner: string, repo: string, pull_number: numbe
 }
 
 export async function GET(request: Request) {
+
+  const { userId } = await auth()
+
+  if (!userId) {
+    return new NextResponse('Unauthorized', { status: 401 })
+  }
+
   const { searchParams } = new URL(request.url)
   const prUrl = searchParams.get('prUrl')
   let owner, repo, pull_number

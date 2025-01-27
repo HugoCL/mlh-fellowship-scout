@@ -14,7 +14,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { PlusCircle } from "lucide-react";
 import { CreatePRModal } from "@/components/create-pr-modal";
 import Link from "next/link";
-import { useTrackedRepos } from "../../../../contexts/tracked-repos-context";
+import { useTrackedRepos } from "../../../../../../contexts/tracked-repos-context";
 
 export default function UserPage(props: {
   params: Promise<{ batchId: string; podId: string; userId: string }>;
@@ -28,12 +28,6 @@ export default function UserPage(props: {
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <Link
-            href={`/${params.batchId}/${params.podId}`}
-            className="text-sm text-muted-foreground hover:underline"
-          >
-            &larr; Back to Pod
-          </Link>
           <h1 className="text-4xl font-bold mt-2">User: {user?.full_name}</h1>
           <p className="text-xl text-muted-foreground">
             GitHub: {user?.username}
@@ -54,9 +48,6 @@ export default function UserPage(props: {
       <Card>
         <CardHeader>
           <CardTitle>Tracked Repositories</CardTitle>
-          <CardDescription>
-            Overview of tracked pull requests for this user
-          </CardDescription>
         </CardHeader>
         <CardContent>
           <Suspense fallback={<div>Loading tracked repositories...</div>}>

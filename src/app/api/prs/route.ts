@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { PRWithCommits } from '@/types/github'
 import { Commit, PR } from '@prisma/client'
+import { auth } from '@clerk/nextjs/server'
 
 export interface PrsPostResponse {
   pr: PRWithCommits
@@ -9,6 +10,12 @@ export interface PrsPostResponse {
 }
 
 export async function POST(request: Request): Promise<NextResponse<PrsPostResponse>> {
+  const { userId } = await auth()
+
+  if (!userId) {
+    return new NextResponse('Unauthorized', { status: 401 })
+  }
+
   const data: PRWithCommits = await request.json()
   const pr = await prisma.pR.create({
     data: {
@@ -46,6 +53,12 @@ export async function POST(request: Request): Promise<NextResponse<PrsPostRespon
 }
 
 export async function PUT(request: Request) {
+  const { userId } = await auth()
+
+  if (!userId) {
+    return new NextResponse('Unauthorized', { status: 401 })
+  }
+
   const data: PRWithCommits = await request.json()
   const {
     id,
@@ -101,6 +114,12 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const { userId } = await auth()
+
+  if (!userId) {
+    return new NextResponse('Unauthorized', { status: 401 })
+  }
+
   const { id }: { id: number } = await request.json()
 
   await prisma.commit.deleteMany({

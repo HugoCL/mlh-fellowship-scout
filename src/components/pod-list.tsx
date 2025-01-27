@@ -4,9 +4,12 @@ import { useTrackedRepos } from "../contexts/tracked-repos-context";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 
 export function PodList({ batchId }: { batchId: string }) {
   const { batches } = useTrackedRepos();
+  const router = useRouter();
+  const pathname = usePathname();
   const batch = batches.find((b) => b.id === batchId);
 
   if (!batch || !batch.pods || batch.pods.length === 0) {
@@ -25,10 +28,15 @@ export function PodList({ batchId }: { batchId: string }) {
         <Card key={pod.id}>
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold mb-2">{pod.name}</h3>
-            <p className="text-sm text-muted-foreground mb-4">ID: {pod.id}</p>
-            <Link href={`/${batchId}/${pod.id}`} passHref>
-              <Button className="w-full">View Users</Button>
-            </Link>
+            <p className="text-sm text-muted-foreground mb-4">
+              Pod ID: {`${batchId}.${pod.id}`}
+            </p>
+            <Button
+              className="w-full"
+              onClick={() => router.push(`${pathname}/${pod.id}`)}
+            >
+              View Users
+            </Button>
           </CardContent>
         </Card>
       ))}

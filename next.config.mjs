@@ -11,6 +11,9 @@ if (process.env.NODE_ENV === "development") {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /* config options here */
+  experimental: {
+    authInterrupts: true,
+  },
 };
 
 export default nextConfig;
