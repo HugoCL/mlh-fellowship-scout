@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma'
 import { Batch } from '@prisma/client'
 import { auth } from '@clerk/nextjs/server'
 
-export async function GET() {
+export async function GET(request: Request) {
   const { userId } = await auth()
 
   if (!userId) {

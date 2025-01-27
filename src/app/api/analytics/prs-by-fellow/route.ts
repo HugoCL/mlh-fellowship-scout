@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server";
 import { RepoStats } from "@/types/analytics";
 
-export async function GET() {
+export async function GET(request: Request) {
     const { userId } = await auth()
 
     if (!userId) {
