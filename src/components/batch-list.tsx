@@ -1,14 +1,42 @@
 "use client";
 
-import { useTrackedRepos } from "../contexts/tracked-repos-context";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter, usePathname } from "next/navigation";
 
+async function fetchBatches() {
+  const response = await fetch("/api/batches");
+  if (!response.ok) {
+    throw new Error("Failed to fetch batches");
+  }
+  return response.json();
+}
+
 export function BatchList() {
-  const { batches } = useTrackedRepos();
+  const { data: batches, isLoading, isError } = useQuery(["batches"], fetchBatches);
   const router = useRouter();
   const pathname = usePathname();
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          Loading batches...
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          Failed to load batches. Please try again.
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (batches.length === 0) {
     return (

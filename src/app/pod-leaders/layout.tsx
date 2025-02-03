@@ -5,7 +5,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { TrackedReposProvider } from "@/contexts/tracked-repos-context";
 import { Separator } from "@radix-ui/react-separator";
 
 export default function Layout({ children }: { children: React.ReactNode }) {

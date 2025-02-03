@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTrackedRepos } from "../contexts/tracked-repos-context";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,13 +14,55 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
+async function fetchBatches() {
+  const response = await fetch("/api/batches");
+  if (!response.ok) {
+    throw new Error("Failed to fetch batches");
+  }
+  return response.json();
+}
+
+async function addUser(user: { id: string; full_name: string; username: string; pod_id: string }) {
+  const response = await fetch("/api/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(user),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to add user");
+  }
+  return response.json();
+}
+
 export function UserForm() {
   const [selectedBatchId, setSelectedBatchId] = useState("");
   const [selectedPodId, setSelectedPodId] = useState("");
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
-  const { batches, addUser } = useTrackedRepos();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { data: batches } = useQuery(["batches"], fetchBatches);
+
+  const mutation = useMutation(addUser, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["users"]);
+      toast({
+        title: "Success",
+        description: `User ${username} added successfully to Pod ${selectedPodId} in Batch ${selectedBatchId}`,
+      });
+      setSelectedBatchId("");
+      setSelectedPodId("");
+      setFullName("");
+      setUsername("");
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add user. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,24 +75,15 @@ export function UserForm() {
       return;
     }
 
-    addUser(selectedBatchId, selectedPodId, {
-      username: username,
+    mutation.mutate({
+      id: `${fullName.toLowerCase().replace(/\s+/g, "-")}-${Math.random().toString(36).substr(2, 5)}`,
       full_name: fullName,
+      username: username,
       pod_id: selectedPodId,
     });
-
-    toast({
-      title: "Success",
-      description: `User ${username} added successfully to Pod ${selectedPodId} in Batch ${selectedBatchId}`,
-    });
-
-    setSelectedBatchId("");
-    setSelectedPodId("");
-    setFullName("");
-    setUsername("");
   };
 
-  const selectedBatch = batches.find((batch) => batch.id === selectedBatchId);
+  const selectedBatch = batches?.find((batch) => batch.id === selectedBatchId);
 
   return (
     <Card>
@@ -68,7 +101,7 @@ export function UserForm() {
                 <SelectValue placeholder="Select a batch" />
               </SelectTrigger>
               <SelectContent>
-                {batches.map((batch) => (
+                {batches?.map((batch) => (
                   <SelectItem key={batch.id} value={batch.id}>
                     {batch.name}
                   </SelectItem>

@@ -1,18 +1,44 @@
 "use client";
 
-import { useTrackedRepos } from "../contexts/tracked-repos-context";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+
+async function fetchPods(batchId: string) {
+  const response = await fetch(`/api/batches/${batchId}/pods`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch pods");
+  }
+  return response.json();
+}
 
 export function PodList({ batchId }: { batchId: string }) {
-  const { batches } = useTrackedRepos();
+  const { data: pods, isLoading, isError } = useQuery(["pods", batchId], () => fetchPods(batchId));
   const router = useRouter();
   const pathname = usePathname();
-  const batch = batches.find((b) => b.id === batchId);
 
-  if (!batch || !batch.pods || batch.pods.length === 0) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          Loading pods...
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          Failed to load pods. Please try again.
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!pods || pods.length === 0) {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
@@ -24,7 +50,7 @@ export function PodList({ batchId }: { batchId: string }) {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {batch.pods.map((pod) => (
+      {pods.map((pod) => (
         <Card key={pod.id}>
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold mb-2">{pod.name}</h3>

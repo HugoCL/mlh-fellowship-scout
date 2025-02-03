@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTrackedRepos } from "../contexts/tracked-repos-context";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -15,6 +15,18 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+async function addPod(pod: { id: string; name: string; batch_id: string }) {
+  const response = await fetch("/api/pods", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(pod),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to add pod");
+  }
+  return response.json();
+}
+
 export function CreatePodModal({
   children,
   batchId,
@@ -25,8 +37,28 @@ export function CreatePodModal({
   const [open, setOpen] = useState(false);
   const [podId, setPodId] = useState("");
   const [podName, setPodName] = useState("");
-  const { addPod } = useTrackedRepos();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const mutation = useMutation(addPod, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["pods"]);
+      toast({
+        title: "Success",
+        description: `Pod ${podId} added successfully to Batch ${batchId}`,
+      });
+      setPodId("");
+      setPodName("");
+      setOpen(false);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add pod. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,20 +71,11 @@ export function CreatePodModal({
       return;
     }
 
-    addPod({
+    mutation.mutate({
       id: podId,
       name: podName,
       batch_id: batchId,
     });
-
-    toast({
-      title: "Success",
-      description: `Pod ${podId} added successfully to Batch ${batchId}`,
-    });
-
-    setPodId("");
-    setPodName("");
-    setOpen(false);
   };
 
   return (

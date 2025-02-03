@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTrackedRepos } from "../contexts/tracked-repos-context";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +24,38 @@ import { PullRequestAPIResponse, PRWithCommits } from "@/types/github";
 import { PR } from "@prisma/client";
 import { getPullRequestData } from "@/actions/pod-leaders/github";
 
+async function fetchUserPRs(batchId: string, podId: string, userId: string) {
+  const response = await fetch(`/api/batches/${batchId}/pods/${podId}/users/${userId}/prs`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch pull requests");
+  }
+  return response.json();
+}
+
+async function updatePR(pr: PRWithCommits) {
+  const response = await fetch(`/api/prs`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(pr),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to update pull request");
+  }
+  return response.json();
+}
+
+async function deletePR(prId: number) {
+  const response = await fetch(`/api/prs`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: prId }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to delete pull request");
+  }
+  return response.json();
+}
+
 export function TrackedRepos({
   batchId,
   podId,
@@ -33,15 +65,44 @@ export function TrackedRepos({
   podId: string;
   userId: string;
 }) {
-  const { batches, updatePR, deletePR } = useTrackedRepos();
+  const { data: prs, isLoading, isError } = useQuery(["prs", batchId, podId, userId], () => fetchUserPRs(batchId, podId, userId));
+  const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
-    {}
-  );
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
 
-  const batch = batches.find((b) => b.id === batchId);
-  const pod = batch?.pods.find((p) => p.id === podId);
-  const user = pod?.users.find((u) => u.id === userId);
+  const updatePRMutation = useMutation(updatePR, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["prs", batchId, podId, userId]);
+      toast({
+        title: "Success",
+        description: "Pull request data refreshed successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to refresh pull request data",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deletePRMutation = useMutation(deletePR, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["prs", batchId, podId, userId]);
+      toast({
+        title: "Success",
+        description: "Pull request deleted successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete pull request",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleRefresh = async (pr: PRWithCommits) => {
     try {
@@ -52,7 +113,7 @@ export function TrackedRepos({
         pull_number: pr.pr_id.toString(),
       });
 
-      updatePR(batchId, podId, userId, pr.id!, {
+      updatePRMutation.mutate({
         ...pr,
         title: pullRequest.title,
         state: pullRequest.state,
@@ -69,15 +130,11 @@ export function TrackedRepos({
           html_url: commit.html_url,
         })),
       });
-      toast({
-        title: "Success",
-        description: "Pull request data refreshed successfully",
-      });
     } catch (error) {
-      console.error("Error al obtener datos del PR:", error);
+      console.error("Error fetching PR data:", error);
       toast({
         title: "Error",
-        description: "No se pudo obtener la información del PR",
+        description: "Failed to fetch PR data",
         variant: "destructive",
       });
     }
@@ -87,12 +144,31 @@ export function TrackedRepos({
     setExpandedItems((prev) => ({ ...prev, [itemKey]: !prev[itemKey] }));
   };
 
-  if (!user || !user.prs || user.prs.length === 0) {
+  if (isLoading) {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
-          No pull requests tracked for this user yet. Add a pull request to get
-          started.
+          Loading pull requests...
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          Failed to load pull requests. Please try again.
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!prs || prs.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          No pull requests tracked for this user yet. Add a pull request to get started.
         </CardContent>
       </Card>
     );
@@ -100,7 +176,7 @@ export function TrackedRepos({
 
   return (
     <div className="space-y-4">
-      {user.prs.map((pr: PRWithCommits) => (
+      {prs.map((pr: PRWithCommits) => (
         <Collapsible
           key={pr.id}
           open={expandedItems[`pr-${pr.id}`]}
@@ -131,7 +207,7 @@ export function TrackedRepos({
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => deletePR(batchId, podId, userId, pr.id!)}
+                    onClick={() => deletePRMutation.mutate(pr.id!)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTrackedRepos } from "../contexts/tracked-repos-context";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -15,8 +15,38 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PullRequestAPIResponse } from "@/types/github";
 import { getPullRequestData } from "@/actions/pod-leaders/github";
+
+async function addPR(pr: {
+  user_id: string;
+  repository: string;
+  pr_id: number;
+  username: string;
+  last_checked: Date;
+  html_url: string;
+  state: string;
+  created_at: Date;
+  updated_at: Date;
+  title: string;
+  commits: {
+    pr_id: number;
+    sha: string;
+    message: string;
+    author_name: string;
+    author_date: Date;
+    html_url: string;
+  }[];
+}) {
+  const response = await fetch("/api/prs", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(pr),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to add pull request");
+  }
+  return response.json();
+}
 
 export function CreatePRModal({
   children,
@@ -35,8 +65,30 @@ export function CreatePRModal({
   const [repo, setRepo] = useState("");
   const [prId, setPrId] = useState("");
   const [inputMethod, setInputMethod] = useState<"url" | "manual">("url");
-  const { addPR } = useTrackedRepos();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const mutation = useMutation(addPR, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["prs"]);
+      toast({
+        title: "Success",
+        description: `PR added successfully`,
+      });
+      setPrUrl("");
+      setOwner("");
+      setRepo("");
+      setPrId("");
+      setOpen(false);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add pull request. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +122,7 @@ export function CreatePRModal({
           : { owner: finalOwner, repo: finalRepo, pull_number: prId }
       );
 
-      addPR(batchId, podId, userId, {
+      mutation.mutate({
         user_id: userId,
         repository: `${finalOwner}/${finalRepo}`,
         pr_id: pullRequest.number,
@@ -90,17 +142,6 @@ export function CreatePRModal({
           html_url: commit.html_url,
         })),
       });
-
-      toast({
-        title: "Success",
-        description: `PR #${pullRequest.number} added successfully`,
-      });
-
-      setPrUrl("");
-      setOwner("");
-      setRepo("");
-      setPrId("");
-      setOpen(false);
     } catch (error) {
       console.error("Error fetching PR data:", error);
       toast({
