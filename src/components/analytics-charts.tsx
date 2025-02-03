@@ -1,12 +1,7 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { RepoStats } from "@/types/analytics";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PRAnalytics, RepoStats } from "@/types/analytics";
 import {
   BarChart,
   Bar,
@@ -144,10 +139,7 @@ export function PRsByDate({
   type,
   id,
 }: {
-  data: {
-    repos: string[];
-    prs?: { date?: string } & Record<string, number>[];
-  };
+  data: PRAnalytics;
   type: "batch" | "pod" | "fellow";
   id: string;
 }) {

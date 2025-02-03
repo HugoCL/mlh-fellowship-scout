@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { PlusCircle } from "lucide-react";
 import { CreateUserModal } from "@/components/create-user-modal";
 import Link from "next/link";
+import { AnalyticsSection } from "@/components/analytics-section";
 
 export default async function PodPage(props: {
   params: Promise<{ batchId: string; podId: string }>;
@@ -32,6 +33,8 @@ export default async function PodPage(props: {
           </Button>
         </CreateUserModal>
       </div>
+
+      <AnalyticsSection type="pod" id={params.podId} />
 
       <Card>
         <CardHeader>

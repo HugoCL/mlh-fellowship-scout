@@ -10,6 +10,9 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import React, { Suspense, useEffect, useState } from "react";
 import { PRsByDate, PRsByRepoAndFellow } from "./analytics-charts";
 import { CommitData, PRData, RepoStats } from "@/types/analytics";
+import { getPRsByFellow } from "@/actions/analytics/prs-by-fellow";
+import { getPRAnalytics } from "@/actions/analytics/prs";
+import { getCommitStats } from "@/actions/analytics/commits";
 
 export function AnalyticsSection({
   type,
@@ -22,7 +25,10 @@ export function AnalyticsSection({
   const [prsByRepoData, setPrsByRepoData] = useState<RepoStats[]>([]);
   const [prsLast7DaysData, setPrsLast7DaysData] = useState<{
     repos: string[];
-    prs?: { date?: string } & Record<string, number>[];
+    prs: {
+      date: string;
+      [key: string]: string | number;
+    }[];
   }>({
     repos: [],
     prs: [],
@@ -33,27 +39,18 @@ export function AnalyticsSection({
 
   useEffect(() => {
     const fetchData = async () => {
-      const prsByRepoResponse = await fetch(
-        `/api/analytics/prs-by-fellow?type=${type}&id=${id}`
-      );
-      const prsByRepoData: RepoStats[] = await prsByRepoResponse.json();
+      const prsByRepoData = await getPRsByFellow();
       setPrsByRepoData(prsByRepoData);
 
-      let prsLast7Days: {
-        repos: string[];
-        prs?: { date?: string } & Record<string, number>[];
-      };
       let commitsLast7Days: CommitData[];
 
-      const prsResponse = await fetch(
-        `/api/analytics/prs?type=${type}&id=${id}`
-      );
-      prsLast7Days = await prsResponse.json();
+      const prsLast7Days = await getPRAnalytics({
+        type: type,
+        id: id,
+        days: 7,
+      });
 
-      const commitsResponse = await fetch(
-        `/api/analytics/commits?type=${type}&id=${id}`
-      );
-      commitsLast7Days = await commitsResponse.json();
+      commitsLast7Days = await getCommitStats({ type, id });
 
       setPrsLast7DaysData(prsLast7Days);
       setCommitsLast7DaysData(commitsLast7Days);

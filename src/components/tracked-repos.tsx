@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PullRequestAPIResponse, PRWithCommits } from "@/types/github";
 import { PR } from "@prisma/client";
+import { getPullRequestData } from "@/actions/pod-leaders/github";
 
 export function TrackedRepos({
   batchId,
@@ -45,22 +46,20 @@ export function TrackedRepos({
   const handleRefresh = async (pr: PRWithCommits) => {
     try {
       const [owner, repo] = pr.repository.split("/");
-      const response = await fetch(
-        `/api/github?owner=${owner}&repo=${repo}&pull_number=${pr.pr_id}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to refresh pull request data");
-      }
-      const data: { pullRequest: PullRequestAPIResponse } =
-        await response.json();
+      const { pullRequest } = await getPullRequestData({
+        owner,
+        repo,
+        pull_number: pr.pr_id.toString(),
+      });
+
       updatePR(batchId, podId, userId, pr.id!, {
         ...pr,
-        title: data.pullRequest.title,
-        state: data.pullRequest.state,
-        html_url: data.pullRequest.html_url,
-        created_at: new Date(data.pullRequest.created_at),
+        title: pullRequest.title,
+        state: pullRequest.state,
+        html_url: pullRequest.html_url,
+        created_at: new Date(pullRequest.created_at),
         updated_at: new Date(),
-        commits: data.pullRequest.commits.map((commit, index) => ({
+        commits: pullRequest.commits.map((commit, index) => ({
           id: index,
           pr_id: pr.pr_id,
           sha: commit.sha,
@@ -75,9 +74,10 @@ export function TrackedRepos({
         description: "Pull request data refreshed successfully",
       });
     } catch (error) {
+      console.error("Error al obtener datos del PR:", error);
       toast({
         title: "Error",
-        description: "Failed to refresh pull request data",
+        description: "No se pudo obtener la información del PR",
         variant: "destructive",
       });
     }

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PullRequestAPIResponse } from "@/types/github";
+import { getPullRequestData } from "@/actions/pod-leaders/github";
 
 export function CreatePRModal({
   children,
@@ -63,32 +64,25 @@ export function CreatePRModal({
     }
 
     try {
-      const response = await fetch(
-        `/api/github?${
-          inputMethod === "url"
-            ? `prUrl=${encodeURIComponent(prUrl)}`
-            : `owner=${finalOwner}&repo=${finalRepo}&pull_number=${prId}`
-        }`
+      const { pullRequest } = await getPullRequestData(
+        inputMethod === "url"
+          ? { prUrl }
+          : { owner: finalOwner, repo: finalRepo, pull_number: prId }
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch pull request data");
-      }
-      const data: { pullRequest: PullRequestAPIResponse } =
-        await response.json();
 
       addPR(batchId, podId, userId, {
         user_id: userId,
         repository: `${finalOwner}/${finalRepo}`,
-        pr_id: data.pullRequest.number,
-        username: data.pullRequest.user.login,
+        pr_id: pullRequest.number,
+        username: pullRequest.user.login,
         last_checked: new Date(),
-        html_url: data.pullRequest.html_url,
-        state: data.pullRequest.state,
-        created_at: new Date(data.pullRequest.created_at),
+        html_url: pullRequest.html_url,
+        state: pullRequest.state,
+        created_at: new Date(pullRequest.created_at),
         updated_at: new Date(),
-        title: data.pullRequest.title,
-        commits: data.pullRequest.commits.map((commit, index) => ({
-          pr_id: data.pullRequest.number,
+        title: pullRequest.title,
+        commits: pullRequest.commits.map((commit, index) => ({
+          pr_id: pullRequest.number,
           sha: commit.sha,
           message: commit.commit.message,
           author_name: commit.commit.author.name,
@@ -99,7 +93,7 @@ export function CreatePRModal({
 
       toast({
         title: "Success",
-        description: `PR #${data.pullRequest.number} added successfully`,
+        description: `PR #${pullRequest.number} added successfully`,
       });
 
       setPrUrl("");
@@ -108,6 +102,7 @@ export function CreatePRModal({
       setPrId("");
       setOpen(false);
     } catch (error) {
+      console.error("Error fetching PR data:", error);
       toast({
         title: "Error",
         description:
