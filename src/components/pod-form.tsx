@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTrackedRepos } from "../contexts/tracked-repos-context";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,13 +13,50 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { getPods } from "@/actions/pod-leaders/pods";
+import { getBatches } from "@/actions/pod-leaders/batches";
+
+async function fetchBatches() {
+  const response = await getBatches();
+  return response;
+}
+
+async function addPod(pod: { id: string; name: string; batch_id: string }) {
+  const response = await getPods(pod.batch_id);
+  return response;
+}
 
 export function PodForm() {
   const [selectedBatchId, setSelectedBatchId] = useState("");
   const [podId, setPodId] = useState("");
   const [podName, setPodName] = useState("");
-  const { batches, addPod } = useTrackedRepos();
+  const { data: batches } = useQuery({
+    queryKey: ["batches"],
+    queryFn: fetchBatches,
+  });
+  const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const mutation = useMutation({
+    mutationFn: addPod,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pods"] });
+      toast({
+        title: "Success",
+        description: `Pod ${podId} added successfully to Batch ${selectedBatchId}`,
+      });
+      setSelectedBatchId("");
+      setPodId("");
+      setPodName("");
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add pod. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,20 +69,11 @@ export function PodForm() {
       return;
     }
 
-    addPod({
+    mutation.mutate({
       id: podId,
       name: podName,
       batch_id: selectedBatchId,
     });
-
-    toast({
-      title: "Success",
-      description: `Pod ${podId} added successfully to Batch ${selectedBatchId}`,
-    });
-
-    setSelectedBatchId("");
-    setPodId("");
-    setPodName("");
   };
 
   return (
@@ -64,7 +92,7 @@ export function PodForm() {
                 <SelectValue placeholder="Select a batch" />
               </SelectTrigger>
               <SelectContent>
-                {batches.map((batch) => (
+                {batches?.map((batch) => (
                   <SelectItem key={batch.id} value={batch.id}>
                     {batch.name}
                   </SelectItem>

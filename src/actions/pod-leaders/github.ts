@@ -43,7 +43,7 @@ export async function getPullRequestData(params: {
     prUrl?: string;
     owner?: string;
     repo?: string;
-    pull_number?: string;
+    pull_number?: number;
 }): Promise<{ pullRequest: PullRequestAPIResponse }> {
     const { userId } = await auth()
 

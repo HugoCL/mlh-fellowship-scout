@@ -1,17 +1,43 @@
 "use client";
 
 import { useState } from "react";
-import { useTrackedRepos } from "../contexts/tracked-repos-context";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { createBatch } from "@/actions/pod-leaders/batches";
+
+async function addBatch(batch: { id: string; name: string }) {
+  const response = await createBatch(batch);
+  return response;
+}
 
 export function BatchForm() {
   const [batchId, setBatchId] = useState("");
   const [batchName, setBatchName] = useState("");
-  const { addBatch } = useTrackedRepos();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const mutation = useMutation({
+    mutationFn: addBatch,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["batches"] });
+      toast({
+        title: "Success",
+        description: `Batch ${batchId} added successfully`,
+      });
+      setBatchId("");
+      setBatchName("");
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add batch. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,18 +50,10 @@ export function BatchForm() {
       return;
     }
 
-    addBatch({
+    mutation.mutate({
       id: batchId,
       name: batchName,
     });
-
-    toast({
-      title: "Success",
-      description: `Batch ${batchId} added successfully`,
-    });
-
-    setBatchId("");
-    setBatchName("");
   };
 
   return (

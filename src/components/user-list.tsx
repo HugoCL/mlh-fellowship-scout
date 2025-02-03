@@ -1,10 +1,22 @@
 "use client";
 
-import { useTrackedRepos } from "../contexts/tracked-repos-context";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { getUsersByPodId } from "@/actions/pod-leaders/users";
+
+async function fetchUsers(batchId: string, podId: string) {
+  /*
+  const response = await fetch(`/api/batches/${batchId}/pods/${podId}/users`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch users");
+  }
+  return response.json();*/
+
+  const response = await getUsersByPodId(podId);
+  return response;
+}
 
 export function UserList({
   batchId,
@@ -13,14 +25,38 @@ export function UserList({
   batchId: string;
   podId: string;
 }) {
-  const { batches } = useTrackedRepos();
+  const {
+    data: users,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["users", batchId, podId],
+    queryFn: () => fetchUsers(batchId, podId),
+  });
   const router = useRouter();
   const pathname = usePathname();
 
-  const batch = batches.find((b) => b.id === batchId);
-  const pod = batch?.pods.find((p) => p.id === podId);
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          Loading users...
+        </CardContent>
+      </Card>
+    );
+  }
 
-  if (!pod || !pod.users || pod.users.length === 0) {
+  if (isError) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          Failed to load users. Please try again.
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!users || users.length === 0) {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
@@ -32,7 +68,7 @@ export function UserList({
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {pod.users.map((user) => (
+      {users.map((user) => (
         <Card key={user.id}>
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold mb-2">{user.full_name}</h3>

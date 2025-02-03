@@ -5,12 +5,15 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { TrackedReposProvider } from "@/contexts/tracked-repos-context";
+import { TanstackQuery } from "@/providers/tanstack-query";
 import { Separator } from "@radix-ui/react-separator";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <TanstackQuery>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
@@ -24,6 +27,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex flex-1 flex-col gap-4 p-8 pt-0">{children}</div>
         </SidebarInset>
       </SidebarProvider>
-    </>
+    </TanstackQuery>
   );
 }

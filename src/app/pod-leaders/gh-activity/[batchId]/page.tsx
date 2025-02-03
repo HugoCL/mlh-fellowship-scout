@@ -16,19 +16,26 @@ import React from "react";
 import { AnalyticsSection } from "@/components/analytics-section";
 import { Separator } from "@/components/ui/separator";
 
+/*
 export default async function BatchPage(props: {
   params: Promise<{ batchId: string }>;
 }) {
-  const params = await props.params;
+  */
+export default async function BatchPage({
+  params,
+}: {
+  params: Promise<{ batchId: string }>;
+}) {
+  const { batchId } = await params;
 
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold mt-2">Batch: {params.batchId}</h1>
+          <h1 className="text-4xl font-bold mt-2">Batch: {batchId}</h1>
         </div>
         <div className="flex space-x-4">
-          <CreatePodModal batchId={params.batchId}>
+          <CreatePodModal batchId={batchId}>
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
               Create Pod
@@ -37,7 +44,7 @@ export default async function BatchPage(props: {
         </div>
       </div>
 
-      <AnalyticsSection type="batch" id={params.batchId} />
+      <AnalyticsSection type="batch" id={batchId} />
 
       <Separator className="my-8" />
 
@@ -47,7 +54,7 @@ export default async function BatchPage(props: {
         </CardHeader>
         <CardContent>
           <Suspense fallback={<div>Loading pods...</div>}>
-            <PodList batchId={params.batchId} />
+            <PodList batchId={batchId} />
           </Suspense>
         </CardContent>
       </Card>

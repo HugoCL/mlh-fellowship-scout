@@ -13,20 +13,25 @@ import { PlusCircle } from "lucide-react";
 import { CreateUserModal } from "@/components/create-user-modal";
 import Link from "next/link";
 import { AnalyticsSection } from "@/components/analytics-section";
-
+/*
 export default async function PodPage(props: {
   params: Promise<{ batchId: string; podId: string }>;
+}) {*/
+export default async function PodPage({
+  params,
+}: {
+  params: Promise<{ batchId: string; podId: string }>;
 }) {
-  const params = await props.params;
+  const { batchId, podId } = await params;
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-4xl font-bold mt-2">
-            Pod: {params.batchId}.{params.podId}
+            Pod: {batchId}.{podId}
           </h1>
         </div>
-        <CreateUserModal batchId={params.batchId} podId={params.podId}>
+        <CreateUserModal batchId={batchId} podId={podId}>
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
             Add User
@@ -34,7 +39,7 @@ export default async function PodPage(props: {
         </CreateUserModal>
       </div>
 
-      <AnalyticsSection type="pod" id={params.podId} />
+      <AnalyticsSection type="pod" id={podId} />
 
       <Card>
         <CardHeader>
@@ -42,7 +47,7 @@ export default async function PodPage(props: {
         </CardHeader>
         <CardContent>
           <Suspense fallback={<div>Loading users...</div>}>
-            <UserList batchId={params.batchId} podId={params.podId} />
+            <UserList batchId={batchId} podId={podId} />
           </Suspense>
         </CardContent>
       </Card>

@@ -1,49 +1,32 @@
 'use server'
 
 import prisma from '@/lib/prisma'
-import { PRWithCommits } from '@/types/github'
-import { Commit } from '@prisma/client'
+import { CommitCreatePayload, PRCreatePayload, PRWithCommits } from '@/types/github'
+import { Commit, PR, Prisma } from '@prisma/client'
 import { auth } from '@clerk/nextjs/server'
 
-export async function createPR(data: PRWithCommits): Promise<{ pr: PRWithCommits; commits: Commit[] }> {
+export async function createPR(prs: PRCreatePayload): Promise<{ pr: PR }> {
     const { userId } = await auth()
     if (!userId) {
         throw new Error('Unauthorized')
     }
-
     const pr = await prisma.pR.create({
         data: {
-            repository: data.repository,
-            pr_id: data.pr_id,
-            username: data.username,
-            user_id: data.user_id || '',
-            title: data.title,
-            html_url: data.html_url,
-            state: data.state,
-            last_checked: data.last_checked ? new Date(data.last_checked) : new Date(),
-            created_at: data.created_at ? new Date(data.created_at) : undefined,
-            updated_at: data.updated_at ? new Date(data.updated_at) : undefined,
+            repository: prs.repository,
+            pr_number: prs.pr_number,
+            username: prs.username,
+            user_id: prs.user_id || '',
+            title: prs.title,
+            html_url: prs.html_url,
+            state: prs.state,
+            last_checked: prs.last_checked ? new Date(prs.last_checked) : new Date(),
+            created_at: prs.created_at ? new Date(prs.created_at) : undefined,
+            updated_at: prs.updated_at ? new Date(prs.updated_at) : undefined,
         }
     })
 
-    await prisma.commit.createMany({
-        data: data.commits.map(commit => ({
-            pr_id: pr.id,
-            sha: commit.sha,
-            message: commit.message,
-            author_name: commit.author_name,
-            author_date: new Date(commit.author_date),
-            html_url: commit.html_url
-        }))
-    })
-
-    const commits = await prisma.commit.findMany({
-        where: { pr_id: pr.id }
-    })
-
     return {
-        pr: { ...pr, commits },
-        commits
+        pr: pr
     }
 }
 
@@ -56,7 +39,7 @@ export async function updatePR(data: PRWithCommits) {
     const {
         id,
         repository,
-        pr_id,
+        pr_number,
         username,
         title,
         html_url,
@@ -71,7 +54,7 @@ export async function updatePR(data: PRWithCommits) {
         where: { id },
         data: {
             repository,
-            pr_id,
+            pr_number,
             username,
             title,
             html_url,
@@ -121,4 +104,21 @@ export async function deletePR(id: number) {
     })
 
     return { success: true }
+}
+
+export async function getUserPRs(userId: string) {
+    const { userId: currentUserId } = await auth()
+
+    if (!currentUserId) {
+        throw new Error('No autorizado')
+    }
+
+    const prs = await prisma.pR.findMany({
+        where: { user_id: userId },
+        include: {
+            commits: true
+        }
+    })
+
+    return prs
 }

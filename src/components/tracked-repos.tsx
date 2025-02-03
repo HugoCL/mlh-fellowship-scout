@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTrackedRepos } from "../contexts/tracked-repos-context";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +23,22 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { PullRequestAPIResponse, PRWithCommits } from "@/types/github";
 import { PR } from "@prisma/client";
 import { getPullRequestData } from "@/actions/pod-leaders/github";
+import { deletePR, getUserPRs, updatePR } from "@/actions/pod-leaders/prs";
+
+async function fetchUserPRs(batchId: string, podId: string, userId: string) {
+  const response = await getUserPRs(userId);
+  return response;
+}
+
+async function updatePRHandler(pr: PRWithCommits) {
+  const response = await updatePR(pr);
+  return response;
+}
+
+async function deletePRHandler(prId: number) {
+  const response = await deletePR(prId);
+  return response;
+}
 
 export function TrackedRepos({
   batchId,
@@ -33,15 +49,59 @@ export function TrackedRepos({
   podId: string;
   userId: string;
 }) {
-  const { batches, updatePR, deletePR } = useTrackedRepos();
+  const {
+    data: prs,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["prs", batchId, podId, userId],
+    queryFn: () => fetchUserPRs(batchId, podId, userId),
+  });
+  const queryClient = useQueryClient();
   const { toast } = useToast();
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   );
 
-  const batch = batches.find((b) => b.id === batchId);
-  const pod = batch?.pods.find((p) => p.id === podId);
-  const user = pod?.users.find((u) => u.id === userId);
+  const updatePRMutation = useMutation({
+    mutationFn: updatePRHandler,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["prs", batchId, podId, userId],
+      });
+      toast({
+        title: "Success",
+        description: "Pull request data refreshed successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to refresh pull request data",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deletePRMutation = useMutation({
+    mutationFn: deletePRHandler,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["prs", batchId, podId, userId],
+      });
+      toast({
+        title: "Success",
+        description: "Pull request deleted successfully",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete pull request",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleRefresh = async (pr: PRWithCommits) => {
     try {
@@ -49,10 +109,10 @@ export function TrackedRepos({
       const { pullRequest } = await getPullRequestData({
         owner,
         repo,
-        pull_number: pr.pr_id.toString(),
+        pull_number: pr.pr_number,
       });
 
-      updatePR(batchId, podId, userId, pr.id!, {
+      updatePRMutation.mutate({
         ...pr,
         title: pullRequest.title,
         state: pullRequest.state,
@@ -61,7 +121,7 @@ export function TrackedRepos({
         updated_at: new Date(),
         commits: pullRequest.commits.map((commit, index) => ({
           id: index,
-          pr_id: pr.pr_id,
+          pr_id: pr.id,
           sha: commit.sha,
           message: commit.commit.message,
           author_name: commit.commit.author.name,
@@ -69,15 +129,11 @@ export function TrackedRepos({
           html_url: commit.html_url,
         })),
       });
-      toast({
-        title: "Success",
-        description: "Pull request data refreshed successfully",
-      });
     } catch (error) {
-      console.error("Error al obtener datos del PR:", error);
+      console.error("Error fetching PR data:", error);
       toast({
         title: "Error",
-        description: "No se pudo obtener la información del PR",
+        description: "Failed to fetch PR data",
         variant: "destructive",
       });
     }
@@ -87,7 +143,27 @@ export function TrackedRepos({
     setExpandedItems((prev) => ({ ...prev, [itemKey]: !prev[itemKey] }));
   };
 
-  if (!user || !user.prs || user.prs.length === 0) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          Loading pull requests...
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center text-muted-foreground">
+          Failed to load pull requests. Please try again.
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!prs || prs.length === 0) {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
@@ -100,7 +176,7 @@ export function TrackedRepos({
 
   return (
     <div className="space-y-4">
-      {user.prs.map((pr: PRWithCommits) => (
+      {prs.map((pr: PRWithCommits) => (
         <Collapsible
           key={pr.id}
           open={expandedItems[`pr-${pr.id}`]}
@@ -131,7 +207,7 @@ export function TrackedRepos({
                   <Button
                     variant="outline"
                     size="icon"
-                    onClick={() => deletePR(batchId, podId, userId, pr.id!)}
+                    onClick={() => deletePRMutation.mutate(pr.id!)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

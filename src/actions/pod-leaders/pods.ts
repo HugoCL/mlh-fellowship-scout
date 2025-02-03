@@ -12,8 +12,24 @@ export async function createPod({ id, name, batch_id }: Pod): Promise<Pod> {
     }
 
     const pod = await prisma.pod.create({
-        data: { id, name, batch_id }
+        data: {
+            id: `${batch_id}.${id}`, name, batch_id
+        }
     })
 
     return pod
+}
+
+export async function getPods(batchId: string): Promise<Pod[]> {
+    const { userId } = await auth()
+
+    if (!userId) {
+        throw new Error('Unauthorized')
+    }
+
+    const pods = await prisma.pod.findMany({
+        where: { batch_id: batchId }
+    })
+
+    return pods
 }

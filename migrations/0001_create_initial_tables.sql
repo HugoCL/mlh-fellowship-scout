@@ -25,7 +25,7 @@ CREATE TABLE "User" (
 CREATE TABLE "PR" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "repository" TEXT NOT NULL,
-    "pr_id" INTEGER NOT NULL,
+    "pr_number" INTEGER NOT NULL,
     "username" TEXT NOT NULL,
     "last_checked" DATETIME NOT NULL,
     "user_id" TEXT NOT NULL,

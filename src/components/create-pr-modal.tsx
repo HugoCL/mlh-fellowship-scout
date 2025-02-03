@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTrackedRepos } from "../contexts/tracked-repos-context";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -15,8 +15,22 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PullRequestAPIResponse } from "@/types/github";
 import { getPullRequestData } from "@/actions/pod-leaders/github";
+import { createPR } from "@/actions/pod-leaders/prs";
+import { CommitCreatePayload, PRCreatePayload } from "@/types/github";
+import { addCommitsToPR } from "@/actions/pod-leaders/commits";
+
+async function addPR(data: { pr: PRCreatePayload }) {
+  const response = await createPR(data.pr);
+  return response;
+}
+async function addCommitsToPRHandler(data: {
+  pr_number: number;
+  commits: CommitCreatePayload;
+}) {
+  const response = await addCommitsToPR(data.pr_number, data.commits);
+  return response;
+}
 
 export function CreatePRModal({
   children,
@@ -35,8 +49,49 @@ export function CreatePRModal({
   const [repo, setRepo] = useState("");
   const [prId, setPrId] = useState("");
   const [inputMethod, setInputMethod] = useState<"url" | "manual">("url");
-  const { addPR } = useTrackedRepos();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const mutation = useMutation({
+    mutationFn: addPR,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["prs"] });
+      toast({
+        title: "Success",
+        description: `PR added successfully`,
+      });
+      setPrUrl("");
+      setOwner("");
+      setRepo("");
+      setPrId("");
+      setOpen(false);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add pull request. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const commitsMutation = useMutation({
+    mutationFn: addCommitsToPRHandler,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["commits"] });
+      toast({
+        title: "Success",
+        description: `Commits added successfully`,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add commits. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,40 +122,34 @@ export function CreatePRModal({
       const { pullRequest } = await getPullRequestData(
         inputMethod === "url"
           ? { prUrl }
-          : { owner: finalOwner, repo: finalRepo, pull_number: prId }
+          : { owner: finalOwner, repo: finalRepo, pull_number: Number(prId) }
       );
+      mutation.mutate({
+        pr: {
+          pr_number: pullRequest.number,
+          html_url: pullRequest.html_url,
+          title: pullRequest.title,
+          user_id: userId,
+          repository: `${finalOwner}/${finalRepo}`,
+          username: pullRequest.user.login,
+          state: pullRequest.state,
+          created_at: new Date(pullRequest.created_at),
+          updated_at: new Date(),
+          last_checked: new Date(),
+        },
+      });
 
-      addPR(batchId, podId, userId, {
-        user_id: userId,
-        repository: `${finalOwner}/${finalRepo}`,
-        pr_id: pullRequest.number,
-        username: pullRequest.user.login,
-        last_checked: new Date(),
-        html_url: pullRequest.html_url,
-        state: pullRequest.state,
-        created_at: new Date(pullRequest.created_at),
-        updated_at: new Date(),
-        title: pullRequest.title,
-        commits: pullRequest.commits.map((commit, index) => ({
-          pr_id: pullRequest.number,
-          sha: commit.sha,
-          message: commit.commit.message,
-          author_name: commit.commit.author.name,
-          author_date: new Date(commit.commit.author.date),
-          html_url: commit.html_url,
+      commitsMutation.mutate({
+        pr_number: pullRequest.number,
+        commits: pullRequest.commits.map((commitData) => ({
+          sha: commitData.sha,
+          message: commitData.commit.message,
+          author_name: commitData.commit.author.name,
+          author_date: commitData.commit.author.date,
+          html_url: commitData.html_url,
+          pr_id: 0,
         })),
       });
-
-      toast({
-        title: "Success",
-        description: `PR #${pullRequest.number} added successfully`,
-      });
-
-      setPrUrl("");
-      setOwner("");
-      setRepo("");
-      setPrId("");
-      setOpen(false);
     } catch (error) {
       console.error("Error fetching PR data:", error);
       toast({

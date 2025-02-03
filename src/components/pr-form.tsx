@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useTrackedRepos } from "../contexts/tracked-repos-context";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,33 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { PR } from "@prisma/client";
-import { PullRequestAPIResponse } from "@/types/github";
+import {
+  CommitCreatePayload,
+  PRCreatePayload,
+  PullRequestAPIResponse,
+} from "@/types/github";
 import { getPullRequestData } from "@/actions/pod-leaders/github";
+import { createPR } from "@/actions/pod-leaders/prs";
+import { getBatches } from "@/actions/pod-leaders/batches";
+import { addCommitsToPR } from "@/actions/pod-leaders/commits";
+
+async function addPR(data: { pr: PRCreatePayload }) {
+  const response = await createPR(data.pr);
+  return response;
+}
+
+async function fetchBatches() {
+  const response = getBatches();
+  return response;
+}
+
+async function addCommitsToPRHandler(data: {
+  pr_number: number;
+  commits: CommitCreatePayload;
+}) {
+  const response = await addCommitsToPR(data.pr_number, data.commits);
+  return response;
+}
 
 export function PRForm() {
   const [selectedBatchId, setSelectedBatchId] = useState("");
@@ -27,17 +52,63 @@ export function PRForm() {
   const [repo, setRepo] = useState("");
   const [prId, setPrId] = useState("");
   const [inputMethod, setInputMethod] = useState<"url" | "manual">("url");
-  const { batches, addPR } = useTrackedRepos();
+  const { data: batches } = useQuery({
+    queryKey: ["batches"],
+    queryFn: fetchBatches,
+  });
+  const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  const mutation = useMutation({
+    mutationFn: addPR,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["prs"] });
+      toast({
+        title: "Success",
+        description: `PR added successfully`,
+      });
+      setPrUrl("");
+      setOwner("");
+      setRepo("");
+      setPrId("");
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add pull request. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const commitsMutation = useMutation({
+    mutationFn: addCommitsToPRHandler,
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to add commits to PR. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (
-      !selectedBatchId ||
-      !selectedPodId ||
-      !selectedUserId ||
-      (inputMethod === "url" ? !prUrl : !owner || !repo || !prId)
-    ) {
+    let finalOwner = owner;
+    let finalRepo = repo;
+
+    if (inputMethod === "url") {
+      const match = prUrl.match(/github\.com\/(.+?)\/(.+?)\/pull\/(\d+)/);
+      if (!match) {
+        toast({
+          title: "Error",
+          description: "Invalid PR URL",
+          variant: "destructive",
+        });
+        return;
+      }
+      [, finalOwner, finalRepo] = match;
+    } else if (!finalOwner || !finalRepo || !prId) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -48,31 +119,39 @@ export function PRForm() {
 
     try {
       const { pullRequest } = await getPullRequestData(
-        inputMethod === "url" ? { prUrl } : { owner, repo, pull_number: prId }
+        inputMethod === "url"
+          ? { prUrl }
+          : { owner: finalOwner, repo: finalRepo, pull_number: Number(prId) }
       );
 
-      if (!pullRequest) {
-        throw new Error("No se encontró el PR");
-      }
-
-      addPR(selectedBatchId, selectedPodId, selectedUserId, {
-        repository: `${pullRequest.user.login}/${repo}`,
-        pr_id: pullRequest.number,
-        username: pullRequest.user.login,
-        last_checked: new Date(),
+      mutation.mutate({
+        pr: {
+          user_id: selectedUserId,
+          repository: `${finalOwner}/${finalRepo}`,
+          pr_number: pullRequest.number,
+          username: pullRequest.user.login,
+          last_checked: new Date(),
+          html_url: pullRequest.html_url,
+          state: pullRequest.state,
+          created_at: new Date(pullRequest.created_at),
+          updated_at: new Date(),
+          title: pullRequest.title,
+        },
       });
 
-      toast({
-        title: "Success",
-        description: `PR #${pullRequest.number} added successfully`,
+      commitsMutation.mutate({
+        pr_number: pullRequest.number,
+        commits: pullRequest.commits.map((commitData) => ({
+          pr_id: 0,
+          sha: commitData.sha,
+          message: commitData.commit.message,
+          author_name: commitData.commit.author.name,
+          author_date: new Date(commitData.commit.author.date),
+          html_url: commitData.html_url,
+        })),
       });
-
-      setPrUrl("");
-      setOwner("");
-      setRepo("");
-      setPrId("");
     } catch (error) {
-      console.error("Error al obtener datos del PR:", error);
+      console.error("Error fetching PR data:", error);
       toast({
         title: "Error",
         description:
@@ -82,7 +161,7 @@ export function PRForm() {
     }
   };
 
-  const selectedBatch = batches.find((batch) => batch.id === selectedBatchId);
+  const selectedBatch = batches?.find((batch) => batch.id === selectedBatchId);
   const selectedPod = selectedBatch?.pods.find(
     (pod) => pod.id === selectedPodId
   );
@@ -103,7 +182,7 @@ export function PRForm() {
                 <SelectValue placeholder="Select a batch" />
               </SelectTrigger>
               <SelectContent>
-                {batches.map((batch) => (
+                {batches?.map((batch) => (
                   <SelectItem key={batch.id} value={batch.id}>
                     {batch.name}
                   </SelectItem>

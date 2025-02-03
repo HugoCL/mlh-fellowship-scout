@@ -1,29 +1,37 @@
 "use client";
 
-import { Suspense, use } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { TrackedRepos } from "@/components/tracked-repos";
 import { Toaster } from "@/components/ui/toaster";
 import { PlusCircle } from "lucide-react";
 import { CreatePRModal } from "@/components/create-pr-modal";
-import Link from "next/link";
-import { useTrackedRepos } from "../../../../../../contexts/tracked-repos-context";
+import { getUserById } from "@/actions/pod-leaders/users";
+import { use } from "react";
 
-export default function UserPage(props: {
+export default function UserPage({
+  params,
+}: {
   params: Promise<{ batchId: string; podId: string; userId: string }>;
 }) {
-  const params = use(props.params);
-  const { batches } = useTrackedRepos();
-  const batch = batches.find((b) => b.id === params.batchId);
-  const pod = batch?.pods.find((p) => p.id === params.podId);
-  const user = pod?.users.find((u) => u.id === params.userId);
+  const { batchId, podId, userId } = use(params);
+  const {
+    data: user,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["user", userId],
+    queryFn: () => getUserById(userId),
+  });
+
+  if (isLoading) {
+    return <div>Loading user details...</div>;
+  }
+
+  if (isError) {
+    return <div>Error loading user details</div>;
+  }
+
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-8">
@@ -33,33 +41,14 @@ export default function UserPage(props: {
             GitHub: {user?.username}
           </p>
         </div>
-        <CreatePRModal
-          batchId={params.batchId}
-          podId={params.podId}
-          userId={params.userId}
-        >
+        <CreatePRModal batchId={batchId} podId={podId} userId={userId}>
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Add Pull Request
+            Create PR
           </Button>
         </CreatePRModal>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Tracked Repositories</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Suspense fallback={<div>Loading tracked repositories...</div>}>
-            <TrackedRepos
-              batchId={params.batchId}
-              podId={params.podId}
-              userId={params.userId}
-            />
-          </Suspense>
-        </CardContent>
-      </Card>
-
+      <TrackedRepos batchId={batchId} podId={podId} userId={userId} />
       <Toaster />
     </div>
   );

@@ -17,3 +17,20 @@ export async function POST(request: Request<Pod>) {
   return NextResponse.json(pod)
 }
 
+export async function GET(request: Request) {
+  const { userId } = await auth()
+
+  if (!userId) {
+    return new NextResponse('Unauthorized', { status: 401 })
+  }
+
+  const { searchParams } = new URL(request.url)
+  const batchId = searchParams.get('batchId')
+
+  const pods = await prisma.pod.findFirst({
+    where: { batch_id: batchId as string }
+  })
+  return NextResponse.json(pods)
+}
+
+
