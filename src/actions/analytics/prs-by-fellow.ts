@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma"
 import { auth } from "@clerk/nextjs/server"
 import { RepoStats } from "@/types/analytics"
 
+
 export async function getPRsByFellow(): Promise<RepoStats[]> {
     const { userId } = await auth()
 
