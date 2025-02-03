@@ -34,7 +34,7 @@ model User {
 model PR {
   id           Int       @id @default(autoincrement())
   repository   String
-  pr_id        Int      
+  pr_number    Int      
   username     String
   last_checked DateTime  
   user_id      String   

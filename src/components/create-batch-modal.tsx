@@ -14,17 +14,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { createBatch } from "@/actions/pod-leaders/batches";
 
 async function addBatch(batch: { id: string; name: string }) {
-  const response = await fetch("/api/batches", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(batch),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to add batch");
-  }
-  return response.json();
+  const response = await createBatch(batch);
+  return response;
 }
 
 export function CreateBatchModal({ children }: { children: React.ReactNode }) {
@@ -34,9 +28,10 @@ export function CreateBatchModal({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const mutation = useMutation(addBatch, {
+  const mutation = useMutation({
+    mutationFn: addBatch,
     onSuccess: () => {
-      queryClient.invalidateQueries(["batches"]);
+      queryClient.invalidateQueries({ queryKey: ["batches"] });
       toast({
         title: "Success",
         description: `Batch ${batchId} added successfully`,

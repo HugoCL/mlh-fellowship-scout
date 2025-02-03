@@ -14,5 +14,5 @@
     "enabled": true
   },
   "placement": { "mode": "smart" },
-  "d1_databases": [{ "binding": "prod-db", "database_name": "mlh-fellowship-scout", "database_id": "5dfb4127-0120-4792-b686-a102f0fdf2b5" }]
+  "d1_databases": [{ "binding": "prod-db", "database_name": "mlh-fellowship-scout", "database_id": "93cfa40d-9d56-494e-8fc8-598fc4c6aa91" }]
 }

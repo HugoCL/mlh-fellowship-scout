@@ -14,17 +14,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { createPod } from "@/actions/pod-leaders/pods";
 
 async function addPod(pod: { id: string; name: string; batch_id: string }) {
-  const response = await fetch("/api/pods", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(pod),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to add pod");
-  }
-  return response.json();
+  const response = await createPod(pod);
+  return response;
 }
 
 export function CreatePodModal({
@@ -40,9 +34,10 @@ export function CreatePodModal({
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const mutation = useMutation(addPod, {
+  const mutation = useMutation({
+    mutationFn: addPod,
     onSuccess: () => {
-      queryClient.invalidateQueries(["pods"]);
+      queryClient.invalidateQueries({ queryKey: ["pods"] });
       toast({
         title: "Success",
         description: `Pod ${podId} added successfully to Batch ${batchId}`,

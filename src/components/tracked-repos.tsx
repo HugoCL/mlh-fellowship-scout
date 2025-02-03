@@ -23,37 +23,21 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { PullRequestAPIResponse, PRWithCommits } from "@/types/github";
 import { PR } from "@prisma/client";
 import { getPullRequestData } from "@/actions/pod-leaders/github";
+import { deletePR, getUserPRs, updatePR } from "@/actions/pod-leaders/prs";
 
 async function fetchUserPRs(batchId: string, podId: string, userId: string) {
-  const response = await fetch(`/api/batches/${batchId}/pods/${podId}/users/${userId}/prs`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch pull requests");
-  }
-  return response.json();
+  const response = await getUserPRs(userId);
+  return response;
 }
 
-async function updatePR(pr: PRWithCommits) {
-  const response = await fetch(`/api/prs`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(pr),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to update pull request");
-  }
-  return response.json();
+async function updatePRHandler(pr: PRWithCommits) {
+  const response = await updatePR(pr);
+  return response;
 }
 
-async function deletePR(prId: number) {
-  const response = await fetch(`/api/prs`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id: prId }),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to delete pull request");
-  }
-  return response.json();
+async function deletePRHandler(prId: number) {
+  const response = await deletePR(prId);
+  return response;
 }
 
 export function TrackedRepos({
@@ -65,14 +49,26 @@ export function TrackedRepos({
   podId: string;
   userId: string;
 }) {
-  const { data: prs, isLoading, isError } = useQuery(["prs", batchId, podId, userId], () => fetchUserPRs(batchId, podId, userId));
+  const {
+    data: prs,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["prs", batchId, podId, userId],
+    queryFn: () => fetchUserPRs(batchId, podId, userId),
+  });
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
+    {}
+  );
 
-  const updatePRMutation = useMutation(updatePR, {
+  const updatePRMutation = useMutation({
+    mutationFn: updatePRHandler,
     onSuccess: () => {
-      queryClient.invalidateQueries(["prs", batchId, podId, userId]);
+      queryClient.invalidateQueries({
+        queryKey: ["prs", batchId, podId, userId],
+      });
       toast({
         title: "Success",
         description: "Pull request data refreshed successfully",
@@ -87,9 +83,12 @@ export function TrackedRepos({
     },
   });
 
-  const deletePRMutation = useMutation(deletePR, {
+  const deletePRMutation = useMutation({
+    mutationFn: deletePRHandler,
     onSuccess: () => {
-      queryClient.invalidateQueries(["prs", batchId, podId, userId]);
+      queryClient.invalidateQueries({
+        queryKey: ["prs", batchId, podId, userId],
+      });
       toast({
         title: "Success",
         description: "Pull request deleted successfully",
@@ -110,7 +109,7 @@ export function TrackedRepos({
       const { pullRequest } = await getPullRequestData({
         owner,
         repo,
-        pull_number: pr.pr_id.toString(),
+        pull_number: pr.pr_number,
       });
 
       updatePRMutation.mutate({
@@ -122,7 +121,7 @@ export function TrackedRepos({
         updated_at: new Date(),
         commits: pullRequest.commits.map((commit, index) => ({
           id: index,
-          pr_id: pr.pr_id,
+          pr_id: pr.id,
           sha: commit.sha,
           message: commit.commit.message,
           author_name: commit.commit.author.name,
@@ -168,7 +167,8 @@ export function TrackedRepos({
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
-          No pull requests tracked for this user yet. Add a pull request to get started.
+          No pull requests tracked for this user yet. Add a pull request to get
+          started.
         </CardContent>
       </Card>
     );

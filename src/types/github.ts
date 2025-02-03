@@ -37,6 +37,10 @@ export type PRWithCommits = Prisma.PRGetPayload<{
   }
 }>
 
+export type PRCreatePayload = Prisma.Args<typeof prisma.pR, 'create'>['data']
+
+export type CommitCreatePayload = Prisma.Args<typeof prisma.commit, 'createMany'>['data']
+
 export type PopulatedBatch = Prisma.BatchGetPayload<{
   include: {
     pods: {

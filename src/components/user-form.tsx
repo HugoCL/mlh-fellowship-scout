@@ -13,25 +13,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { getBatches } from "@/actions/pod-leaders/batches";
+import { createUser } from "@/actions/pod-leaders/users";
 
 async function fetchBatches() {
-  const response = await fetch("/api/batches");
-  if (!response.ok) {
-    throw new Error("Failed to fetch batches");
-  }
-  return response.json();
+  const response = await getBatches();
+  return response;
 }
 
-async function addUser(user: { id: string; full_name: string; username: string; pod_id: string }) {
-  const response = await fetch("/api/users", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(user),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to add user");
-  }
-  return response.json();
+async function addUser(user: {
+  id: string;
+  full_name: string;
+  username: string;
+  pod_id: string;
+}) {
+  const response = await createUser(user);
+  return response;
 }
 
 export function UserForm() {
@@ -41,11 +38,15 @@ export function UserForm() {
   const [username, setUsername] = useState("");
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { data: batches } = useQuery(["batches"], fetchBatches);
+  const { data: batches } = useQuery({
+    queryKey: ["batches"],
+    queryFn: fetchBatches,
+  });
 
-  const mutation = useMutation(addUser, {
+  const mutation = useMutation({
+    mutationFn: addUser,
     onSuccess: () => {
-      queryClient.invalidateQueries(["users"]);
+      queryClient.invalidateQueries({ queryKey: ["users"] });
       toast({
         title: "Success",
         description: `User ${username} added successfully to Pod ${selectedPodId} in Batch ${selectedBatchId}`,
@@ -76,7 +77,9 @@ export function UserForm() {
     }
 
     mutation.mutate({
-      id: `${fullName.toLowerCase().replace(/\s+/g, "-")}-${Math.random().toString(36).substr(2, 5)}`,
+      id: `${fullName.toLowerCase().replace(/\s+/g, "-")}-${Math.random()
+        .toString(36)
+        .substring(2, 7)}`,
       full_name: fullName,
       username: username,
       pod_id: selectedPodId,

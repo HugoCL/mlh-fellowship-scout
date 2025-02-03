@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useTrackedRepos } from "../contexts/tracked-repos-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { createUser } from "@/actions/pod-leaders/users";
 
 export function CreateUserModal({
   children,
@@ -27,7 +27,6 @@ export function CreateUserModal({
   const [open, setOpen] = useState(false);
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
-  const { addUser } = useTrackedRepos();
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,7 +44,7 @@ export function CreateUserModal({
       .toLowerCase()
       .replace(/\s+/g, "-")}-${Math.random().toString(36).substr(2, 5)}`;
 
-    addUser(batchId, podId, {
+    createUser({
       id: userId,
       full_name: fullName,
       username: username,

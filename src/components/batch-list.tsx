@@ -4,17 +4,22 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter, usePathname } from "next/navigation";
+import { getBatches } from "@/actions/pod-leaders/batches";
 
 async function fetchBatches() {
-  const response = await fetch("/api/batches");
-  if (!response.ok) {
-    throw new Error("Failed to fetch batches");
-  }
-  return response.json();
+  const response = getBatches();
+  return response;
 }
 
 export function BatchList() {
-  const { data: batches, isLoading, isError } = useQuery(["batches"], fetchBatches);
+  const {
+    data: batches,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["batches"],
+    queryFn: fetchBatches,
+  });
   const router = useRouter();
   const pathname = usePathname();
 
@@ -38,7 +43,7 @@ export function BatchList() {
     );
   }
 
-  if (batches.length === 0) {
+  if (!batches || batches.length === 0) {
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">

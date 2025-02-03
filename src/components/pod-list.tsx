@@ -4,17 +4,22 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useRouter, usePathname } from "next/navigation";
+import { getPods } from "@/actions/pod-leaders/pods";
 
 async function fetchPods(batchId: string) {
-  const response = await fetch(`/api/batches/${batchId}/pods`);
-  if (!response.ok) {
-    throw new Error("Failed to fetch pods");
-  }
-  return response.json();
+  const response = await getPods(batchId);
+  return response;
 }
 
 export function PodList({ batchId }: { batchId: string }) {
-  const { data: pods, isLoading, isError } = useQuery(["pods", batchId], () => fetchPods(batchId));
+  const {
+    data: pods,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["pods", batchId],
+    queryFn: () => fetchPods(batchId),
+  });
   const router = useRouter();
   const pathname = usePathname();
 
@@ -55,7 +60,7 @@ export function PodList({ batchId }: { batchId: string }) {
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold mb-2">{pod.name}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Pod ID: {`${batchId}.${pod.id}`}
+              Pod ID: {pod.id}
             </p>
             <Button
               className="w-full"

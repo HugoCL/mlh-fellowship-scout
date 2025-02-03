@@ -4,13 +4,18 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
+import { getUsersByPodId } from "@/actions/pod-leaders/users";
 
 async function fetchUsers(batchId: string, podId: string) {
+  /*
   const response = await fetch(`/api/batches/${batchId}/pods/${podId}/users`);
   if (!response.ok) {
     throw new Error("Failed to fetch users");
   }
-  return response.json();
+  return response.json();*/
+
+  const response = await getUsersByPodId(podId);
+  return response;
 }
 
 export function UserList({
@@ -20,7 +25,14 @@ export function UserList({
   batchId: string;
   podId: string;
 }) {
-  const { data: users, isLoading, isError } = useQuery(["users", batchId, podId], () => fetchUsers(batchId, podId));
+  const {
+    data: users,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["users", batchId, podId],
+    queryFn: () => fetchUsers(batchId, podId),
+  });
   const router = useRouter();
   const pathname = usePathname();
 
