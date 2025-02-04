@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import React, { Suspense, useEffect, useState } from "react";
 import { PRsByDate, PRsByRepoAndFellow } from "./analytics-charts";
-import { CommitData, PRData, RepoStats } from "@/types/analytics";
+import { CommitData, PRAnalytics, PRData, RepoStats } from "@/types/analytics";
 import { getPRsByFellow } from "@/actions/analytics/prs-by-fellow";
 import { getPRAnalytics } from "@/actions/analytics/prs";
 import { getCommitStats } from "@/actions/analytics/commits";
@@ -23,13 +23,7 @@ export function AnalyticsSection({
 }) {
   const [analyticsOpen, setAnalyticsOpen] = React.useState(false);
   const [prsByRepoData, setPrsByRepoData] = useState<RepoStats[]>([]);
-  const [prsLast7DaysData, setPrsLast7DaysData] = useState<{
-    repos: string[];
-    prs: {
-      date: string;
-      [key: string]: string | number;
-    }[];
-  }>({
+  const [prsLast7DaysData, setPrsLast7DaysData] = useState<PRAnalytics>({
     repos: [],
     prs: [],
   });

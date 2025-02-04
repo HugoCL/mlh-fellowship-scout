@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RepoStats } from "@/types/analytics";
+import { PRAnalytics, RepoStats } from "@/types/analytics";
 import {
   BarChart,
   Bar,
@@ -37,7 +37,6 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 
-// Pull requests by tracked repository and fellow
 export function PRsByRepoAndFellow({ data }: { data: RepoStats[] }) {
   const chartConfig = {
     open: {
@@ -175,10 +174,7 @@ export function PRsByDate({
   type,
   id,
 }: {
-  data: {
-    repos: string[];
-    prs?: { date?: string } & Record<string, number>[];
-  };
+  data: PRAnalytics;
   type: "batch" | "pod" | "fellow";
   id: string;
 }) {
@@ -217,8 +213,8 @@ export function PRsByDate({
                   {interval === "7d"
                     ? "Last 7 days"
                     : interval === "14d"
-                      ? "Last 14 days"
-                      : "Last 30 days"}
+                    ? "Last 14 days"
+                    : "Last 30 days"}
                 </SelectItem>
               ))}
             </SelectContent>
