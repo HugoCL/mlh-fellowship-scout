@@ -1,5 +1,6 @@
 'use server'
 
+import prisma from "@/lib/prisma"
 import { CommitCreatePayload } from "@/types/github"
 import { auth } from "@clerk/nextjs/server"
 import { Prisma } from "@prisma/client"
