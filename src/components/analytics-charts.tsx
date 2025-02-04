@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PRAnalytics, RepoStats } from "@/types/analytics";
+import { RepoStats } from "@/types/analytics";
 import {
   BarChart,
   Bar,
@@ -39,7 +39,6 @@ import { AlertCircleIcon } from "lucide-react";
 
 // Pull requests by tracked repository and fellow
 export function PRsByRepoAndFellow({ data }: { data: RepoStats[] }) {
-  console.log("RepoStats", data);
   const chartConfig = {
     open: {
       label: "Open",
@@ -52,7 +51,7 @@ export function PRsByRepoAndFellow({ data }: { data: RepoStats[] }) {
   } satisfies ChartConfig;
 
   const [selectedProject, setSelectedProject] = useState<string | undefined>(
-    data[0].repo
+    data.length > 0 ? data[0].repo : undefined
   );
   const filteredProjectData = data.find(
     (project) => project.repo === selectedProject
@@ -74,20 +73,37 @@ export function PRsByRepoAndFellow({ data }: { data: RepoStats[] }) {
           </div>
         </CardHeader>
         <CardContent>
-          <ChartContainer
-            config={chartConfig}
-            className="min-h-[200px] max-h-[500px] w-full p-4"
-          >
-            <BarChart accessibilityLayer data={data}>
-              <CartesianGrid vertical={false} />
-              <XAxis dataKey="repo" type="category" />
-              <YAxis type="number" allowDecimals={false} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <ChartLegend content={<ChartLegendContent />} />
-              <Bar dataKey="open" stackId="a" fill="#4ade80" name="Open" />
-              <Bar dataKey="closed" stackId="a" fill="#3b82f6" name="Closed" />
-            </BarChart>
-          </ChartContainer>
+          {data.length > 0 ? (
+            <ChartContainer
+              config={chartConfig}
+              className="min-h-[200px] max-h-[500px] w-full p-4"
+            >
+              <BarChart accessibilityLayer data={data}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="repo" type="category" />
+                <YAxis type="number" allowDecimals={false} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Bar dataKey="open" stackId="a" fill="#4ade80" name="Open" />
+                <Bar
+                  dataKey="closed"
+                  stackId="a"
+                  fill="#3b82f6"
+                  name="Closed"
+                />
+              </BarChart>
+            </ChartContainer>
+          ) : (
+            <div className="flex items-center justify-center w-full h-48">
+              <Alert>
+                <AlertCircleIcon className="w-6 h-6 mr-2" />
+                <AlertTitle>No PR data available</AlertTitle>
+                <AlertDescription>
+                  There is no PR data available, please add new PRs.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
         </CardContent>
       </Card>
       <Separator className="my-8" />
@@ -101,7 +117,9 @@ export function PRsByRepoAndFellow({ data }: { data: RepoStats[] }) {
               className="w-[160px] rounded-lg sm:ml-auto"
               aria-label="Select a value"
             >
-              <SelectValue placeholder={data[0].repo} />
+              <SelectValue
+                placeholder={data.length > 0 ? data[0].repo : "No data"}
+              />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
               {data.map((project) => (
@@ -113,20 +131,38 @@ export function PRsByRepoAndFellow({ data }: { data: RepoStats[] }) {
           </Select>
         </CardHeader>
         <CardContent>
-          <ChartContainer
-            config={chartConfig}
-            className="min-h-[200px] max-h-[500px] w-full p-4"
-          >
-            <BarChart accessibilityLayer data={projectChartData}>
-              <CartesianGrid vertical={false} />
-              <XAxis dataKey="fellow" type="category" />
-              <YAxis type="number" allowDecimals={false} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <ChartLegend content={<ChartLegendContent />} />
-              <Bar dataKey="open" stackId="a" fill="#4ade80" name="Open" />
-              <Bar dataKey="closed" stackId="a" fill="#3b82f6" name="Closed" />
-            </BarChart>
-          </ChartContainer>
+          {filteredProjectData ? (
+            <ChartContainer
+              config={chartConfig}
+              className="min-h-[200px] max-h-[500px] w-full p-4"
+            >
+              <BarChart accessibilityLayer data={projectChartData}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="fellow" type="category" />
+                <YAxis type="number" allowDecimals={false} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartLegend content={<ChartLegendContent />} />
+                <Bar dataKey="open" stackId="a" fill="#4ade80" name="Open" />
+                <Bar
+                  dataKey="closed"
+                  stackId="a"
+                  fill="#3b82f6"
+                  name="Closed"
+                />
+              </BarChart>
+            </ChartContainer>
+          ) : (
+            <div className="flex items-center justify-center w-full h-48">
+              <Alert>
+                <AlertCircleIcon className="w-6 h-6 mr-2" />
+                <AlertTitle>No PR data available</AlertTitle>
+                <AlertDescription>
+                  There is no PR data available for the selected project. Please
+                  change the project or add new PRs.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
         </CardContent>
       </Card>
     </>
@@ -139,14 +175,16 @@ export function PRsByDate({
   type,
   id,
 }: {
-  data: PRAnalytics;
+  data: {
+    repos: string[];
+    prs?: { date?: string } & Record<string, number>[];
+  };
   type: "batch" | "pod" | "fellow";
   id: string;
 }) {
   const [selectedDateInterval, setSelectedDateInterval] = useState<
     string | undefined
   >("7d");
-  console.log(data);
 
   const chartConfig = {
     prs: {
@@ -179,8 +217,8 @@ export function PRsByDate({
                   {interval === "7d"
                     ? "Last 7 days"
                     : interval === "14d"
-                    ? "Last 14 days"
-                    : "Last 30 days"}
+                      ? "Last 14 days"
+                      : "Last 30 days"}
                 </SelectItem>
               ))}
             </SelectContent>
