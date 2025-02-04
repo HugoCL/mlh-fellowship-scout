@@ -3,25 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
 import { PlusCircle } from "lucide-react";
-import prisma from "@/lib/prisma";
 import { CreateBatchModal } from "@/components/create-batch-modal";
 import { BatchList } from "@/components/batch-list";
 
 export default async function Dashboard() {
-  await prisma.batch.findMany({
-    include: {
-      pods: {
-        include: {
-          users: {
-            include: {
-              prs: true,
-            },
-          },
-        },
-      },
-    },
-  });
-
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-8">
