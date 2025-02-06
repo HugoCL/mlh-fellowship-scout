@@ -36,9 +36,9 @@ export default function UserPage({
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold mt-2">User: {user?.full_name}</h1>
+          <h1 className="text-4xl font-bold mt-2">{user?.full_name}</h1>
           <p className="text-xl text-muted-foreground">
-            GitHub: {user?.username}
+            GitHub Username: {user?.username}
           </p>
         </div>
         <CreatePRModal batchId={batchId} podId={podId} userId={userId}>
