@@ -15,6 +15,7 @@ export interface PullRequestAPIResponse {
   state: string
   created_at: string
   updated_at: string
+  merged_at?: string
   user: GitHubUser
   commits: GitHubCommit[]
 }

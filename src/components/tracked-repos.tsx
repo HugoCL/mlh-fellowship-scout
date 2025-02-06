@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { PullRequestAPIResponse, PRWithCommits } from "@/types/github";
 import { PR } from "@prisma/client";
-import { getPullRequestData } from "@/actions/pod-leaders/github";
+import { getSinglePRData } from "@/actions/pod-leaders/github";
 import { deletePR, getUserPRs, updatePR } from "@/actions/pod-leaders/prs";
 
 async function fetchUserPRs(batchId: string, podId: string, userId: string) {
@@ -106,7 +106,7 @@ export function TrackedRepos({
   const handleRefresh = async (pr: PRWithCommits) => {
     try {
       const [owner, repo] = pr.repository.split("/");
-      const { pullRequest } = await getPullRequestData({
+      const { pullRequest } = await getSinglePRData({
         owner,
         repo,
         pull_number: pr.pr_number,
@@ -190,12 +190,18 @@ export function TrackedRepos({
                     className={
                       pr.state === "open"
                         ? "bg-yellow-700"
-                        : pr.state === "closed"
+                        : pr.state === "closed" && pr.merged_at !== null
                         ? "bg-green-700"
+                        : pr.state === "closed" && pr.merged_at === null
+                        ? "bg-red-700"
                         : "bg-gray-700"
                     }
                   >
-                    {pr.state || "Unknown"}
+                    {pr.state === "open"
+                      ? "Open"
+                      : pr.state === "closed"
+                      ? `Closed - ${pr.merged_at ? "Merged" : "Canceled"}`
+                      : "Unknown"}
                   </Badge>
                   <Button
                     variant="outline"

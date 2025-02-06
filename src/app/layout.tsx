@@ -1,8 +1,8 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
-import { Open_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-const opensans = Open_Sans({
+const inter = Inter({
   subsets: ["latin"],
   display: "swap",
 });
@@ -20,7 +20,7 @@ export default function RootLayout({
         baseTheme: dark,
       }}
     >
-      <html lang="en" className={opensans.className}>
+      <html lang="en" className={inter.className}>
         <body>{children}</body>
       </html>
     </ClerkProvider>

@@ -20,7 +20,7 @@ import {
   PRCreatePayload,
   PullRequestAPIResponse,
 } from "@/types/github";
-import { getPullRequestData } from "@/actions/pod-leaders/github";
+import { getSinglePRData } from "@/actions/pod-leaders/github";
 import { createPR } from "@/actions/pod-leaders/prs";
 import { getBatches } from "@/actions/pod-leaders/batches";
 import { addCommitsToPR } from "@/actions/pod-leaders/commits";
@@ -118,7 +118,7 @@ export function PRForm() {
     }
 
     try {
-      const { pullRequest } = await getPullRequestData(
+      const { pullRequest } = await getSinglePRData(
         inputMethod === "url"
           ? { prUrl }
           : { owner: finalOwner, repo: finalRepo, pull_number: Number(prId) }

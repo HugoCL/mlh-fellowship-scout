@@ -43,7 +43,8 @@ model PR {
   html_url     String?  
   state        String?
   created_at   DateTime? 
-  updated_at   DateTime? 
+  updated_at   DateTime?
+  merged_at    DateTime? 
   commits      Commit[]
 }
 

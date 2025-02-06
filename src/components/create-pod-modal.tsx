@@ -87,11 +87,12 @@ export function CreatePodModal({
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <label htmlFor="podId" className="text-right">
-                Pod ID
+                Pod Number
               </label>
               <Input
                 id="podId"
                 value={podId}
+                type="number"
                 onChange={(e) => setPodId(e.target.value)}
                 className="col-span-3"
               />

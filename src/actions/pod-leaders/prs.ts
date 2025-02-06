@@ -22,6 +22,7 @@ export async function createPR(prs: PRCreatePayload): Promise<{ pr: PR }> {
             last_checked: prs.last_checked ? new Date(prs.last_checked) : new Date(),
             created_at: prs.created_at ? new Date(prs.created_at) : undefined,
             updated_at: prs.updated_at ? new Date(prs.updated_at) : undefined,
+            merged_at: prs.merged_at ? new Date(prs.merged_at) : undefined
         }
     })
 
@@ -47,6 +48,7 @@ export async function updatePR(data: PRWithCommits) {
         last_checked,
         created_at,
         updated_at,
+        merged_at,
         commits
     } = data;
 
@@ -62,6 +64,7 @@ export async function updatePR(data: PRWithCommits) {
             last_checked: last_checked ? new Date(last_checked) : undefined,
             created_at: created_at ? new Date(created_at) : undefined,
             updated_at: updated_at ? new Date(updated_at) : undefined,
+            merged_at: merged_at ? new Date(merged_at) : undefined
         }
     });
 
