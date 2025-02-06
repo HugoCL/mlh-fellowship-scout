@@ -13,6 +13,7 @@ import { PlusCircle } from "lucide-react";
 import { CreateUserModal } from "@/components/create-user-modal";
 import Link from "next/link";
 import { AnalyticsSection } from "@/components/analytics-section";
+import { Separator } from "@/components/ui/separator";
 /*
 export default async function PodPage(props: {
   params: Promise<{ batchId: string; podId: string }>;
@@ -27,9 +28,7 @@ export default async function PodPage({
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-4xl font-bold mt-2">
-            Pod: {batchId}.{podId}
-          </h1>
+          <h1 className="text-4xl font-bold mt-2">Pod: {podId}</h1>
         </div>
         <CreateUserModal batchId={batchId} podId={podId}>
           <Button>
@@ -40,6 +39,8 @@ export default async function PodPage({
       </div>
 
       <AnalyticsSection type="pod" id={podId} />
+
+      <Separator className="my-8" />
 
       <Card>
         <CardHeader>
