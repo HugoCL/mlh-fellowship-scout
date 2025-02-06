@@ -167,8 +167,8 @@ export function TrackedRepos({
     return (
       <Card>
         <CardContent className="p-6 text-center text-muted-foreground">
-          No pull requests tracked for this user yet. Add a pull request to get
-          started.
+          No pull requests tracked for this fellow yet. Add a pull request to
+          get started.
         </CardContent>
       </Card>
     );

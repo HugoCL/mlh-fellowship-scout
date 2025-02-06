@@ -73,7 +73,7 @@ export function CreateBatchModal({ children }: { children: React.ReactNode }) {
         <DialogHeader>
           <DialogTitle>Create New Batch</DialogTitle>
           <DialogDescription>
-            Add a new batch to organize your pods and users.
+            Add a new batch to organize pods and fellows.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -86,6 +86,7 @@ export function CreateBatchModal({ children }: { children: React.ReactNode }) {
                 id="batchId"
                 value={batchId}
                 onChange={(e) => setBatchId(e.target.value)}
+                placeholder="e.g. 25.SUM.A"
                 className="col-span-3"
               />
             </div>

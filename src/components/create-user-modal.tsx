@@ -53,7 +53,7 @@ export function CreateUserModal({
 
     toast({
       title: "Success",
-      description: `User ${fullName} added successfully to Pod ${podId}`,
+      description: `Fellow ${fullName} added successfully to Pod ${podId}`,
     });
 
     setFullName("");
@@ -66,9 +66,9 @@ export function CreateUserModal({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New User</DialogTitle>
+          <DialogTitle>Add New Fellow</DialogTitle>
           <DialogDescription>
-            Add a new user to the selected pod.
+            Add a new fellow to the selected pod.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -97,7 +97,7 @@ export function CreateUserModal({
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Add User</Button>
+            <Button type="submit">Add Fellow</Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -25,11 +25,11 @@ export default function UserPage({
   });
 
   if (isLoading) {
-    return <div>Loading user details...</div>;
+    return <div>Loading fellow details...</div>;
   }
 
   if (isError) {
-    return <div>Error loading user details</div>;
+    return <div>Error loading fellow details</div>;
   }
 
   return (

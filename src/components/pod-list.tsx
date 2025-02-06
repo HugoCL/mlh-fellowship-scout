@@ -66,7 +66,7 @@ export function PodList({ batchId }: { batchId: string }) {
               className="w-full"
               onClick={() => router.push(`${pathname}/${pod.id}`)}
             >
-              View Users
+              View Fellows
             </Button>
           </CardContent>
         </Card>

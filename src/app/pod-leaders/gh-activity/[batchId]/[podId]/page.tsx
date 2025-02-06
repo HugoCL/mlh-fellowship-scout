@@ -33,7 +33,7 @@ export default async function PodPage({
         <CreateUserModal batchId={batchId} podId={podId}>
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
-            Add User
+            Add Fellow
           </Button>
         </CreateUserModal>
       </div>
@@ -44,10 +44,10 @@ export default async function PodPage({
 
       <Card>
         <CardHeader>
-          <CardTitle>Users</CardTitle>
+          <CardTitle>Fellows</CardTitle>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<div>Loading users...</div>}>
+          <Suspense fallback={<div>Loading fellows...</div>}>
             <UserList batchId={batchId} podId={podId} />
           </Suspense>
         </CardContent>

@@ -231,7 +231,7 @@ export function CreatePRModal({
         <DialogHeader>
           <DialogTitle>Add New Pull Request</DialogTitle>
           <DialogDescription>
-            Add a new pull request to track for this user.
+            Add a new pull request to track for this fellow.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
