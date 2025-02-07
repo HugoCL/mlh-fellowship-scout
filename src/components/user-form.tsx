@@ -1,20 +1,20 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { getBatches } from "@/actions/pod-leaders/batches";
-import { createUser } from "@/actions/pod-leaders/users";
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { getBatches } from '@/actions/pod-leaders/batches';
+import { createUser } from '@/actions/pod-leaders/users';
 
 async function fetchBatches() {
   const response = await getBatches();
@@ -32,35 +32,35 @@ async function addUser(user: {
 }
 
 export function UserForm() {
-  const [selectedBatchId, setSelectedBatchId] = useState("");
-  const [selectedPodId, setSelectedPodId] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [username, setUsername] = useState("");
+  const [selectedBatchId, setSelectedBatchId] = useState('');
+  const [selectedPodId, setSelectedPodId] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const { data: batches } = useQuery({
-    queryKey: ["batches"],
+    queryKey: ['batches'],
     queryFn: fetchBatches,
   });
 
   const mutation = useMutation({
     mutationFn: addUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       toast({
-        title: "Success",
+        title: 'Success',
         description: `User ${username} added successfully to Pod ${selectedPodId} in Batch ${selectedBatchId}`,
       });
-      setSelectedBatchId("");
-      setSelectedPodId("");
-      setFullName("");
-      setUsername("");
+      setSelectedBatchId('');
+      setSelectedPodId('');
+      setFullName('');
+      setUsername('');
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to add user. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to add user. Please try again.',
+        variant: 'destructive',
       });
     },
   });
@@ -69,15 +69,15 @@ export function UserForm() {
     e.preventDefault();
     if (!selectedBatchId || !selectedPodId || !username) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Please fill in all fields',
+        variant: 'destructive',
       });
       return;
     }
 
     mutation.mutate({
-      id: `${fullName.toLowerCase().replace(/\s+/g, "-")}-${Math.random()
+      id: `${fullName.toLowerCase().replace(/\s+/g, '-')}-${Math.random()
         .toString(36)
         .substring(2, 7)}`,
       full_name: fullName,
@@ -94,14 +94,14 @@ export function UserForm() {
         <CardTitle>Add New User</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="batchSelect" className="text-sm font-medium">
+        <form onSubmit={handleSubmit} className='space-y-4'>
+          <div className='space-y-2'>
+            <label htmlFor='batchSelect' className='text-sm font-medium'>
               Select Batch
             </label>
             <Select onValueChange={setSelectedBatchId} value={selectedBatchId}>
-              <SelectTrigger id="batchSelect">
-                <SelectValue placeholder="Select a batch" />
+              <SelectTrigger id='batchSelect'>
+                <SelectValue placeholder='Select a batch' />
               </SelectTrigger>
               <SelectContent>
                 {batches?.map((batch) => (
@@ -112,13 +112,13 @@ export function UserForm() {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <label htmlFor="podSelect" className="text-sm font-medium">
+          <div className='space-y-2'>
+            <label htmlFor='podSelect' className='text-sm font-medium'>
               Select Pod
             </label>
             <Select onValueChange={setSelectedPodId} value={selectedPodId}>
-              <SelectTrigger id="podSelect">
-                <SelectValue placeholder="Select a pod" />
+              <SelectTrigger id='podSelect'>
+                <SelectValue placeholder='Select a pod' />
               </SelectTrigger>
               <SelectContent>
                 {selectedBatch?.pods.map((pod) => (
@@ -129,29 +129,29 @@ export function UserForm() {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
-            <label htmlFor="userId" className="text-sm font-medium">
+          <div className='space-y-2'>
+            <label htmlFor='userId' className='text-sm font-medium'>
               User ID
             </label>
             <Input
-              id="full_name"
+              id='full_name'
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              placeholder="e.g., John Doe"
+              placeholder='e.g., John Doe'
             />
           </div>
-          <div className="space-y-2">
-            <label htmlFor="username" className="text-sm font-medium">
+          <div className='space-y-2'>
+            <label htmlFor='username' className='text-sm font-medium'>
               GitHub Username
             </label>
             <Input
-              id="username"
+              id='username'
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="e.g., octocat"
+              placeholder='e.g., octocat'
             />
           </div>
-          <Button type="submit" className="w-full">
+          <Button type='submit' className='w-full'>
             Add User
           </Button>
         </form>

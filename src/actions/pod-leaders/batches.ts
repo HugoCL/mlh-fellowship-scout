@@ -1,47 +1,47 @@
-'use server'
+'use server';
 
-import prisma from '@/lib/prisma'
-import { Batch } from '@prisma/client'
-import { auth } from '@clerk/nextjs/server'
+import prisma from '@/lib/prisma';
+import { Batch } from '@prisma/client';
+import { auth } from '@clerk/nextjs/server';
 
 export async function getBatches() {
-    const { userId } = await auth()
+  const { userId } = await auth();
 
-    if (!userId) {
-        throw new Error('Unauthorized')
-    }
+  if (!userId) {
+    throw new Error('Unauthorized');
+  }
 
-    const batches = await prisma.batch.findMany({
+  const batches = await prisma.batch.findMany({
+    include: {
+      pods: {
         include: {
-            pods: {
+          users: {
+            include: {
+              prs: {
                 include: {
-                    users: {
-                        include: {
-                            prs: {
-                                include: {
-                                    commits: true
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    })
+                  commits: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
 
-    return batches
+  return batches;
 }
 
 export async function createBatch({ id, name }: Batch): Promise<Batch> {
-    const { userId } = await auth()
+  const { userId } = await auth();
 
-    if (!userId) {
-        throw new Error('Unauthorized')
-    }
+  if (!userId) {
+    throw new Error('Unauthorized');
+  }
 
-    const batch = await prisma.batch.create({
-        data: { id, name }
-    })
+  const batch = await prisma.batch.create({
+    data: { id, name },
+  });
 
-    return batch
+  return batch;
 }

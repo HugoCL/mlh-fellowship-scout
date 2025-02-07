@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -12,9 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
-import { createBatch } from "@/actions/pod-leaders/batches";
+} from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
+import { createBatch } from '@/actions/pod-leaders/batches';
 
 async function addBatch(batch: { id: string; name: string }) {
   const response = await createBatch(batch);
@@ -23,28 +23,28 @@ async function addBatch(batch: { id: string; name: string }) {
 
 export function CreateBatchModal({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
-  const [batchId, setBatchId] = useState("");
-  const [batchName, setBatchName] = useState("");
+  const [batchId, setBatchId] = useState('');
+  const [batchName, setBatchName] = useState('');
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const mutation = useMutation({
     mutationFn: addBatch,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["batches"] });
+      queryClient.invalidateQueries({ queryKey: ['batches'] });
       toast({
-        title: "Success",
+        title: 'Success',
         description: `Batch ${batchId} added successfully`,
       });
-      setBatchId("");
-      setBatchName("");
+      setBatchId('');
+      setBatchName('');
       setOpen(false);
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to add batch. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to add batch. Please try again.',
+        variant: 'destructive',
       });
     },
   });
@@ -53,9 +53,9 @@ export function CreateBatchModal({ children }: { children: React.ReactNode }) {
     e.preventDefault();
     if (!batchId || !batchName) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Please fill in all fields',
+        variant: 'destructive',
       });
       return;
     }
@@ -77,33 +77,33 @@ export function CreateBatchModal({ children }: { children: React.ReactNode }) {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="batchId" className="text-right">
+          <div className='grid gap-4 py-4'>
+            <div className='grid grid-cols-4 items-center gap-4'>
+              <label htmlFor='batchId' className='text-right'>
                 Batch ID
               </label>
               <Input
-                id="batchId"
+                id='batchId'
                 value={batchId}
                 onChange={(e) => setBatchId(e.target.value)}
-                placeholder="e.g. 25.SUM.A"
-                className="col-span-3"
+                placeholder='e.g. 25.SUM.A'
+                className='col-span-3'
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="batchName" className="text-right">
+            <div className='grid grid-cols-4 items-center gap-4'>
+              <label htmlFor='batchName' className='text-right'>
                 Batch Name
               </label>
               <Input
-                id="batchName"
+                id='batchName'
                 value={batchName}
                 onChange={(e) => setBatchName(e.target.value)}
-                className="col-span-3"
+                className='col-span-3'
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Create Batch</Button>
+            <Button type='submit'>Create Batch</Button>
           </DialogFooter>
         </form>
       </DialogContent>

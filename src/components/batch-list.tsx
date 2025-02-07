@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useRouter, usePathname } from "next/navigation";
-import { getBatches } from "@/actions/pod-leaders/batches";
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { useRouter, usePathname } from 'next/navigation';
+import { getBatches } from '@/actions/pod-leaders/batches';
 
 async function fetchBatches() {
   const response = getBatches();
@@ -17,7 +17,7 @@ export function BatchList() {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["batches"],
+    queryKey: ['batches'],
     queryFn: fetchBatches,
   });
   const router = useRouter();
@@ -26,7 +26,7 @@ export function BatchList() {
   if (isLoading) {
     return (
       <Card>
-        <CardContent className="p-6 text-center text-muted-foreground">
+        <CardContent className='p-6 text-center text-muted-foreground'>
           Loading batches...
         </CardContent>
       </Card>
@@ -36,7 +36,7 @@ export function BatchList() {
   if (isError) {
     return (
       <Card>
-        <CardContent className="p-6 text-center text-muted-foreground">
+        <CardContent className='p-6 text-center text-muted-foreground'>
           Failed to load batches. Please try again.
         </CardContent>
       </Card>
@@ -46,7 +46,7 @@ export function BatchList() {
   if (!batches || batches.length === 0) {
     return (
       <Card>
-        <CardContent className="p-6 text-center text-muted-foreground">
+        <CardContent className='p-6 text-center text-muted-foreground'>
           No batches added yet. Create a batch to get started.
         </CardContent>
       </Card>
@@ -54,16 +54,16 @@ export function BatchList() {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
       {batches.map((batch) => (
         <Card key={batch.id}>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-2">{batch.name}</h3>
-            <p className="text-sm text-muted-foreground mb-4">
+          <CardContent className='p-6'>
+            <h3 className='mb-2 text-lg font-semibold'>{batch.name}</h3>
+            <p className='mb-4 text-sm text-muted-foreground'>
               Batch ID: {batch.id}
             </p>
             <Button
-              className="w-full"
+              className='w-full'
               onClick={() => router.push(`${pathname}/${batch.id}`)}
             >
               View Pods

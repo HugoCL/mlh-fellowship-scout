@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import * as React from "react";
+import * as React from 'react';
 import {
   AudioWaveform,
   BookOpen,
@@ -14,52 +14,52 @@ import {
   Settings2,
   SquareTerminal,
   UserRoundSearch,
-} from "lucide-react";
+} from 'lucide-react';
 
-import { NavMain } from "@/components/nav-main";
-import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
+import { NavMain } from '@/components/nav-main';
+import { NavUser } from '@/components/nav-user';
+import { TeamSwitcher } from '@/components/team-switcher';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar";
-import { UserButton } from "@clerk/nextjs";
+} from '@/components/ui/sidebar';
+import { UserButton } from '@clerk/nextjs';
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: 'shadcn',
+    email: 'm@example.com',
+    avatar: '/avatars/shadcn.jpg',
   },
   teams: [
     {
-      name: "Pod Leaders",
+      name: 'Pod Leaders',
       logo: Code,
-      plan: "MLH Fellowship",
+      plan: 'MLH Fellowship',
     },
     {
-      name: "Admission Specialists",
+      name: 'Admission Specialists',
       logo: UserRoundSearch,
-      plan: "MLH Fellowship",
+      plan: 'MLH Fellowship',
     },
   ],
   navMain: [
     {
-      title: "Fellow Activities",
+      title: 'Fellow Activities',
       icon: SquareTerminal,
-      url: "/fellows",
+      url: '/fellows',
       isActive: true,
       items: [
         {
-          title: "GitHub Activity",
-          url: "/pod-leaders/gh-activity",
+          title: 'GitHub Activity',
+          url: '/pod-leaders/gh-activity',
         },
         {
-          title: "Program Reports",
-          url: "#",
+          title: 'Program Reports',
+          url: '#',
         },
       ],
     },
@@ -68,19 +68,19 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible='icon' {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
-      <SidebarFooter className="flex items-start">
+      <SidebarFooter className='flex items-start'>
         <UserButton
           showName
           appearance={{
             elements: {
-              userButtonOuterIdentifier: "text-black",
+              userButtonOuterIdentifier: 'text-black',
             },
           }}
         />

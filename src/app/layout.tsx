@@ -1,13 +1,13 @@
-import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
-import { Inter } from "next/font/google";
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { ClerkProvider } from '@clerk/nextjs';
+import { dark } from '@clerk/themes';
+import { Inter } from 'next/font/google';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
+  subsets: ['latin'],
+  display: 'swap',
 });
 
-import "./globals.css";
+import './globals.css';
 
 export default function RootLayout({
   children,
@@ -20,7 +20,7 @@ export default function RootLayout({
         baseTheme: dark,
       }}
     >
-      <html lang="en" className={inter.className}>
+      <html lang='en' className={inter.className}>
         <body>{children}</body>
       </html>
     </ClerkProvider>

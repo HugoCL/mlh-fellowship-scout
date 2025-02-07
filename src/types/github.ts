@@ -1,47 +1,50 @@
-import prisma from '@/lib/prisma'
-import { Prisma } from '@prisma/client'
+import prisma from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export interface GitHubUser {
-  login: string
-  avatar_url: string
-  html_url: string
-  name: string
+  login: string;
+  avatar_url: string;
+  html_url: string;
+  name: string;
 }
 
 export interface PullRequestAPIResponse {
-  number: number
-  title: string
-  html_url: string
-  state: string
-  created_at: string
-  updated_at: string
-  merged_at?: string
-  user: GitHubUser
-  commits: GitHubCommit[]
+  number: number;
+  title: string;
+  html_url: string;
+  state: string;
+  created_at: string;
+  updated_at: string;
+  merged_at?: string;
+  user: GitHubUser;
+  commits: GitHubCommit[];
 }
 
 export interface GitHubCommit {
-  sha: string
-  html_url: string
+  sha: string;
+  html_url: string;
   commit: {
-    message: string
+    message: string;
     author: {
-      name: string
-      date: string
-    }
-  }
-  author: GitHubUser
+      name: string;
+      date: string;
+    };
+  };
+  author: GitHubUser;
 }
 
 export type PRWithCommits = Prisma.PRGetPayload<{
   include: {
-    commits: true
-  }
-}>
+    commits: true;
+  };
+}>;
 
-export type PRCreatePayload = Prisma.Args<typeof prisma.pR, 'create'>['data']
+export type PRCreatePayload = Prisma.Args<typeof prisma.pR, 'create'>['data'];
 
-export type CommitCreatePayload = Prisma.Args<typeof prisma.commit, 'createMany'>['data']
+export type CommitCreatePayload = Prisma.Args<
+  typeof prisma.commit,
+  'createMany'
+>['data'];
 
 export type PopulatedBatch = Prisma.BatchGetPayload<{
   include: {
@@ -51,25 +54,24 @@ export type PopulatedBatch = Prisma.BatchGetPayload<{
           include: {
             prs: {
               include: {
-                commits: true
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-}>
+                commits: true;
+              };
+            };
+          };
+        };
+      };
+    };
+  };
+}>;
 
 export type PopulatedUser = Prisma.UserGetPayload<{
   include: {
     prs: {
       include: {
-        commits: true
-      }
-    }
-  }
-}>
+        commits: true;
+      };
+    };
+  };
+}>;
 
-export type { Batch, Pod, User, PR, Commit } from '@prisma/client'
-
+export type { Batch, Pod, User, PR, Commit } from '@prisma/client';

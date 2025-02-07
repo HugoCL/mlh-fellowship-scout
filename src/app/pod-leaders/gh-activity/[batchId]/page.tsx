@@ -1,20 +1,20 @@
-import { Suspense } from "react";
+import { Suspense } from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PodList } from "@/components/pod-list";
-import { Toaster } from "@/components/ui/toaster";
-import { PlusCircle } from "lucide-react";
-import { CreatePodModal } from "@/components/create-pod-modal";
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { PodList } from '@/components/pod-list';
+import { Toaster } from '@/components/ui/toaster';
+import { PlusCircle } from 'lucide-react';
+import { CreatePodModal } from '@/components/create-pod-modal';
 
-import React from "react";
-import { AnalyticsSection } from "@/components/analytics-section";
-import { Separator } from "@/components/ui/separator";
+import React from 'react';
+import { AnalyticsSection } from '@/components/analytics-section';
+import { Separator } from '@/components/ui/separator';
 
 /*
 export default async function BatchPage(props: {
@@ -29,24 +29,24 @@ export default async function BatchPage({
   const { batchId } = await params;
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="flex justify-between items-center mb-8">
+    <div className='container mx-auto py-10'>
+      <div className='mb-8 flex items-center justify-between'>
         <div>
-          <h1 className="text-4xl font-bold mt-2">Batch: {batchId}</h1>
+          <h1 className='mt-2 text-4xl font-bold'>Batch: {batchId}</h1>
         </div>
-        <div className="flex space-x-4">
+        <div className='flex space-x-4'>
           <CreatePodModal batchId={batchId}>
             <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
+              <PlusCircle className='mr-2 h-4 w-4' />
               Create Pod
             </Button>
           </CreatePodModal>
         </div>
       </div>
 
-      <AnalyticsSection type="batch" id={batchId} />
+      <AnalyticsSection type='batch' id={batchId} />
 
-      <Separator className="my-8" />
+      <Separator className='my-8' />
 
       <Card>
         <CardHeader>

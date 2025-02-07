@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
   DialogContent,
@@ -13,8 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { createPod } from "@/actions/pod-leaders/pods";
+} from '@/components/ui/dialog';
+import { createPod } from '@/actions/pod-leaders/pods';
 
 async function addPod(pod: { id: string; name: string; batch_id: string }) {
   const response = await createPod(pod);
@@ -29,28 +29,28 @@ export function CreatePodModal({
   batchId: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [podId, setPodId] = useState("");
-  const [podName, setPodName] = useState("");
+  const [podId, setPodId] = useState('');
+  const [podName, setPodName] = useState('');
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const mutation = useMutation({
     mutationFn: addPod,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pods"] });
+      queryClient.invalidateQueries({ queryKey: ['pods'] });
       toast({
-        title: "Success",
+        title: 'Success',
         description: `Pod ${podId} added successfully to Batch ${batchId}`,
       });
-      setPodId("");
-      setPodName("");
+      setPodId('');
+      setPodName('');
       setOpen(false);
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to add pod. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to add pod. Please try again.',
+        variant: 'destructive',
       });
     },
   });
@@ -59,9 +59,9 @@ export function CreatePodModal({
     e.preventDefault();
     if (!podId || !podName) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Please fill in all fields',
+        variant: 'destructive',
       });
       return;
     }
@@ -84,33 +84,33 @@ export function CreatePodModal({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="podId" className="text-right">
+          <div className='grid gap-4 py-4'>
+            <div className='grid grid-cols-4 items-center gap-4'>
+              <label htmlFor='podId' className='text-right'>
                 Pod Number
               </label>
               <Input
-                id="podId"
+                id='podId'
                 value={podId}
-                type="number"
+                type='number'
                 onChange={(e) => setPodId(e.target.value)}
-                className="col-span-3"
+                className='col-span-3'
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="podName" className="text-right">
+            <div className='grid grid-cols-4 items-center gap-4'>
+              <label htmlFor='podName' className='text-right'>
                 Pod Name
               </label>
               <Input
-                id="podName"
+                id='podName'
                 value={podName}
                 onChange={(e) => setPodName(e.target.value)}
-                className="col-span-3"
+                className='col-span-3'
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Create Pod</Button>
+            <Button type='submit'>Create Pod</Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -1,24 +1,24 @@
-"use client";
+'use client';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import React, { Suspense, useEffect, useState } from "react";
-import { PRsByDate, PRsByRepoAndFellow } from "./analytics-charts";
-import { CommitData, PRAnalytics, PRData, RepoStats } from "@/types/analytics";
-import { getPRsByFellow } from "@/actions/analytics/prs-by-fellow";
-import { getPRAnalytics } from "@/actions/analytics/prs";
-import { getCommitStats } from "@/actions/analytics/commits";
+} from '@/components/ui/collapsible';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import React, { Suspense, useEffect, useState } from 'react';
+import { PRsByDate, PRsByRepoAndFellow } from './analytics-charts';
+import { CommitData, PRAnalytics, PRData, RepoStats } from '@/types/analytics';
+import { getPRsByFellow } from '@/actions/analytics/prs-by-fellow';
+import { getPRAnalytics } from '@/actions/analytics/prs';
+import { getCommitStats } from '@/actions/analytics/commits';
 
 export function AnalyticsSection({
   type,
   id,
 }: {
-  type: "batch" | "pod" | "fellow";
+  type: 'batch' | 'pod' | 'fellow';
   id: string;
 }) {
   const [analyticsOpen, setAnalyticsOpen] = React.useState(false);
@@ -58,7 +58,7 @@ export function AnalyticsSection({
       <Card>
         <CardHeader>
           <CardTitle>
-            <div className="flex items-center justify-between w-full">
+            <div className='flex w-full items-center justify-between'>
               <span>Analytics</span>
               <CollapsibleTrigger asChild>
                 <Button>
@@ -68,9 +68,9 @@ export function AnalyticsSection({
             </div>
           </CardTitle>
         </CardHeader>
-        <CollapsibleContent className="space-y-2">
+        <CollapsibleContent className='space-y-2'>
           <CardContent>
-            <div className="container mx-auto py-10">
+            <div className='container mx-auto py-10'>
               <PRsByRepoAndFellow data={prsByRepoData} />
               <PRsByDate data={prsLast7DaysData} type={type} id={id} />
               {/** 

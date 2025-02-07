@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
   DialogContent,
@@ -12,8 +12,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { createUser } from "@/actions/pod-leaders/users";
+} from '@/components/ui/dialog';
+import { createUser } from '@/actions/pod-leaders/users';
 
 export function CreateUserModal({
   children,
@@ -25,24 +25,24 @@ export function CreateUserModal({
   podId: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [fullName, setFullName] = useState("");
-  const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName || !username) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Please fill in all fields',
+        variant: 'destructive',
       });
       return;
     }
 
     const userId = `${fullName
       .toLowerCase()
-      .replace(/\s+/g, "-")}-${Math.random().toString(36).substr(2, 5)}`;
+      .replace(/\s+/g, '-')}-${Math.random().toString(36).substr(2, 5)}`;
 
     createUser({
       id: userId,
@@ -52,12 +52,12 @@ export function CreateUserModal({
     });
 
     toast({
-      title: "Success",
+      title: 'Success',
       description: `Fellow ${fullName} added successfully to Pod ${podId}`,
     });
 
-    setFullName("");
-    setUsername("");
+    setFullName('');
+    setUsername('');
     setOpen(false);
   };
 
@@ -72,32 +72,32 @@ export function CreateUserModal({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="fullName" className="text-right">
+          <div className='grid gap-4 py-4'>
+            <div className='grid grid-cols-4 items-center gap-4'>
+              <label htmlFor='fullName' className='text-right'>
                 Full Name
               </label>
               <Input
-                id="fullName"
+                id='fullName'
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="col-span-3"
+                className='col-span-3'
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="username" className="text-right">
+            <div className='grid grid-cols-4 items-center gap-4'>
+              <label htmlFor='username' className='text-right'>
                 GitHub Username
               </label>
               <Input
-                id="username"
+                id='username'
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="col-span-3"
+                className='col-span-3'
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Add Fellow</Button>
+            <Button type='submit'>Add Fellow</Button>
           </DialogFooter>
         </form>
       </DialogContent>

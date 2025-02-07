@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PRAnalytics, RepoStats } from "@/types/analytics";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PRAnalytics, RepoStats } from '@/types/analytics';
 import {
   BarChart,
   Bar,
@@ -16,7 +16,7 @@ import {
   Cell,
   LineChart,
   Line,
-} from "recharts";
+} from 'recharts';
 import {
   ChartConfig,
   ChartContainer,
@@ -24,28 +24,28 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
+} from '@/components/ui/chart';
+import { Separator } from '@/components/ui/separator';
+import { useState } from 'react';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircleIcon } from "lucide-react";
+} from '@/components/ui/select';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircleIcon } from 'lucide-react';
 
 export function PRsByRepoAndFellow({ data }: { data: RepoStats[] }) {
   const chartConfig = {
     open: {
-      label: "Open",
-      color: "hsl(var(--chart-1))",
+      label: 'Open',
+      color: 'hsl(var(--chart-1))',
     },
     closed: {
-      label: "Closed",
-      color: "hsl(var(--chart-3))",
+      label: 'Closed',
+      color: 'hsl(var(--chart-3))',
     },
   } satisfies ChartConfig;
 
@@ -65,9 +65,9 @@ export function PRsByRepoAndFellow({ data }: { data: RepoStats[] }) {
 
   return (
     <>
-      <Card className="w-full ">
-        <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
-          <div className="grid flex-1 gap-1 text-center sm:text-left">
+      <Card className='w-full'>
+        <CardHeader className='flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row'>
+          <div className='grid flex-1 gap-1 text-center sm:text-left'>
             <CardTitle>Project PRs</CardTitle>
           </div>
         </CardHeader>
@@ -75,27 +75,27 @@ export function PRsByRepoAndFellow({ data }: { data: RepoStats[] }) {
           {data.length > 0 ? (
             <ChartContainer
               config={chartConfig}
-              className="min-h-[200px] max-h-[500px] w-full p-4"
+              className='max-h-[500px] min-h-[200px] w-full p-4'
             >
               <BarChart accessibilityLayer data={data}>
                 <CartesianGrid vertical={false} />
-                <XAxis dataKey="repo" type="category" />
-                <YAxis type="number" allowDecimals={false} />
+                <XAxis dataKey='repo' type='category' />
+                <YAxis type='number' allowDecimals={false} />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <ChartLegend content={<ChartLegendContent />} />
-                <Bar dataKey="open" stackId="a" fill="#4ade80" name="Open" />
+                <Bar dataKey='open' stackId='a' fill='#4ade80' name='Open' />
                 <Bar
-                  dataKey="closed"
-                  stackId="a"
-                  fill="#3b82f6"
-                  name="Closed"
+                  dataKey='closed'
+                  stackId='a'
+                  fill='#3b82f6'
+                  name='Closed'
                 />
               </BarChart>
             </ChartContainer>
           ) : (
-            <div className="flex items-center justify-center w-full h-48">
+            <div className='flex h-48 w-full items-center justify-center'>
               <Alert>
-                <AlertCircleIcon className="w-6 h-6 mr-2" />
+                <AlertCircleIcon className='mr-2 h-6 w-6' />
                 <AlertTitle>No PR data available</AlertTitle>
                 <AlertDescription>
                   There is no PR data available, please add new PRs.
@@ -105,22 +105,22 @@ export function PRsByRepoAndFellow({ data }: { data: RepoStats[] }) {
           )}
         </CardContent>
       </Card>
-      <Separator className="my-8" />
-      <Card className="w-full ">
-        <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
-          <div className="grid flex-1 gap-1 text-center sm:text-left">
+      <Separator className='my-8' />
+      <Card className='w-full'>
+        <CardHeader className='flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row'>
+          <div className='grid flex-1 gap-1 text-center sm:text-left'>
             <CardTitle>Project PRs by Fellow</CardTitle>
           </div>
           <Select value={selectedProject} onValueChange={setSelectedProject}>
             <SelectTrigger
-              className="w-[160px] rounded-lg sm:ml-auto"
-              aria-label="Select a value"
+              className='w-[160px] rounded-lg sm:ml-auto'
+              aria-label='Select a value'
             >
               <SelectValue
-                placeholder={data.length > 0 ? data[0].repo : "No data"}
+                placeholder={data.length > 0 ? data[0].repo : 'No data'}
               />
             </SelectTrigger>
-            <SelectContent className="rounded-xl">
+            <SelectContent className='rounded-xl'>
               {data.map((project) => (
                 <SelectItem key={project.repo} value={project.repo}>
                   {project.repo}
@@ -133,27 +133,27 @@ export function PRsByRepoAndFellow({ data }: { data: RepoStats[] }) {
           {filteredProjectData ? (
             <ChartContainer
               config={chartConfig}
-              className="min-h-[200px] max-h-[500px] w-full p-4"
+              className='max-h-[500px] min-h-[200px] w-full p-4'
             >
               <BarChart accessibilityLayer data={projectChartData}>
                 <CartesianGrid vertical={false} />
-                <XAxis dataKey="fellow" type="category" />
-                <YAxis type="number" allowDecimals={false} />
+                <XAxis dataKey='fellow' type='category' />
+                <YAxis type='number' allowDecimals={false} />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <ChartLegend content={<ChartLegendContent />} />
-                <Bar dataKey="open" stackId="a" fill="#4ade80" name="Open" />
+                <Bar dataKey='open' stackId='a' fill='#4ade80' name='Open' />
                 <Bar
-                  dataKey="closed"
-                  stackId="a"
-                  fill="#3b82f6"
-                  name="Closed"
+                  dataKey='closed'
+                  stackId='a'
+                  fill='#3b82f6'
+                  name='Closed'
                 />
               </BarChart>
             </ChartContainer>
           ) : (
-            <div className="flex items-center justify-center w-full h-48">
+            <div className='flex h-48 w-full items-center justify-center'>
               <Alert>
-                <AlertCircleIcon className="w-6 h-6 mr-2" />
+                <AlertCircleIcon className='mr-2 h-6 w-6' />
                 <AlertTitle>No PR data available</AlertTitle>
                 <AlertDescription>
                   There is no PR data available for the selected project. Please
@@ -175,25 +175,25 @@ export function PRsByDate({
   id,
 }: {
   data: PRAnalytics;
-  type: "batch" | "pod" | "fellow";
+  type: 'batch' | 'pod' | 'fellow';
   id: string;
 }) {
   const [selectedDateInterval, setSelectedDateInterval] = useState<
     string | undefined
-  >("7d");
+  >('7d');
 
   const chartConfig = {
     prs: {
-      label: "Number of PRs",
-      color: "hsl(var(--chart-1))",
+      label: 'Number of PRs',
+      color: 'hsl(var(--chart-1))',
     },
   } satisfies ChartConfig;
   return (
     <>
-      <Separator className="my-8" />
-      <Card className="w-full ">
-        <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
-          <div className="grid flex-1 gap-1 text-center sm:text-left">
+      <Separator className='my-8' />
+      <Card className='w-full'>
+        <CardHeader className='flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row'>
+          <div className='grid flex-1 gap-1 text-center sm:text-left'>
             <CardTitle>PRs Trends for {id}</CardTitle>
           </div>
           <Select
@@ -202,19 +202,19 @@ export function PRsByDate({
             onValueChange={setSelectedDateInterval}
           >
             <SelectTrigger
-              className="w-[160px] rounded-lg sm:ml-auto"
-              aria-label="Select a value"
+              className='w-[160px] rounded-lg sm:ml-auto'
+              aria-label='Select a value'
             >
-              <SelectValue placeholder={"7 days"} />
+              <SelectValue placeholder={'7 days'} />
             </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              {["7d", "14d", "30d"].map((interval) => (
+            <SelectContent className='rounded-xl'>
+              {['7d', '14d', '30d'].map((interval) => (
                 <SelectItem key={interval} value={interval}>
-                  {interval === "7d"
-                    ? "Last 7 days"
-                    : interval === "14d"
-                    ? "Last 14 days"
-                    : "Last 30 days"}
+                  {interval === '7d'
+                    ? 'Last 7 days'
+                    : interval === '14d'
+                      ? 'Last 14 days'
+                      : 'Last 30 days'}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -224,28 +224,28 @@ export function PRsByDate({
           {data.repos ? (
             <ChartContainer
               config={chartConfig}
-              className="min-h-[200px] max-h-[500px] w-full p-4"
+              className='max-h-[500px] min-h-[200px] w-full p-4'
             >
               <LineChart data={data.prs}>
                 <CartesianGrid vertical={false} />
-                <XAxis dataKey="date" type="category" />
+                <XAxis dataKey='date' type='category' />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <ChartLegend content={<ChartLegendContent />} />
                 {data.repos.map((repo) => (
                   <Line
                     key={repo}
-                    type="monotone"
+                    type='monotone'
                     dataKey={repo}
-                    stroke="#3b82f6"
+                    stroke='#3b82f6'
                     name={repo}
                   />
                 ))}
               </LineChart>
             </ChartContainer>
           ) : (
-            <div className="flex items-center justify-center w-full h-48">
+            <div className='flex h-48 w-full items-center justify-center'>
               <Alert>
-                <AlertCircleIcon className="w-6 h-6 mr-2" />
+                <AlertCircleIcon className='mr-2 h-6 w-6' />
                 <AlertTitle>No PR data available</AlertTitle>
                 <AlertDescription>
                   There is no PR data available for the selected interval.
@@ -266,27 +266,27 @@ export function CommitsLast7Days({
   type,
 }: {
   data: any[];
-  type: "batch" | "pod" | "fellow";
+  type: 'batch' | 'pod' | 'fellow';
 }) {
   return (
-    <Card className="w-full h-[500px]">
+    <Card className='h-[500px] w-full'>
       <CardHeader>
         <CardTitle>
-          Commits in Last 7 Days by{" "}
+          Commits in Last 7 Days by{' '}
           {type.charAt(0).toUpperCase() + type.slice(1)}
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width='100%' height='100%'>
           <PieChart>
             <Pie
               data={data}
-              dataKey="commits"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
+              dataKey='commits'
+              nameKey='name'
+              cx='50%'
+              cy='50%'
               outerRadius={80}
-              fill="#8884d8"
+              fill='#8884d8'
               label
             >
               {data.map((entry, index) => (

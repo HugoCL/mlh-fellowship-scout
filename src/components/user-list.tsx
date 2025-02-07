@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { usePathname, useRouter } from "next/navigation";
-import { getUsersByPodId } from "@/actions/pod-leaders/users";
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { usePathname, useRouter } from 'next/navigation';
+import { getUsersByPodId } from '@/actions/pod-leaders/users';
 
 async function fetchUsers(batchId: string, podId: string) {
   /*
@@ -30,7 +30,7 @@ export function UserList({
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["users", batchId, podId],
+    queryKey: ['users', batchId, podId],
     queryFn: () => fetchUsers(batchId, podId),
   });
   const router = useRouter();
@@ -39,7 +39,7 @@ export function UserList({
   if (isLoading) {
     return (
       <Card>
-        <CardContent className="p-6 text-center text-muted-foreground">
+        <CardContent className='p-6 text-center text-muted-foreground'>
           Loading users...
         </CardContent>
       </Card>
@@ -49,7 +49,7 @@ export function UserList({
   if (isError) {
     return (
       <Card>
-        <CardContent className="p-6 text-center text-muted-foreground">
+        <CardContent className='p-6 text-center text-muted-foreground'>
           Failed to load users. Please try again.
         </CardContent>
       </Card>
@@ -59,7 +59,7 @@ export function UserList({
   if (!users || users.length === 0) {
     return (
       <Card>
-        <CardContent className="p-6 text-center text-muted-foreground">
+        <CardContent className='p-6 text-center text-muted-foreground'>
           No users added to this pod yet. Add a user to get started.
         </CardContent>
       </Card>
@@ -67,16 +67,16 @@ export function UserList({
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
       {users.map((user) => (
         <Card key={user.id}>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-2">{user.full_name}</h3>
-            <p className="text-sm text-muted-foreground mb-2">
+          <CardContent className='p-6'>
+            <h3 className='mb-2 text-lg font-semibold'>{user.full_name}</h3>
+            <p className='mb-2 text-sm text-muted-foreground'>
               GitHub: {user.username}
             </p>
             <Button
-              className="w-full"
+              className='w-full'
               onClick={() => router.push(`${pathname}/${user.id}`)}
             >
               View Pull Requests

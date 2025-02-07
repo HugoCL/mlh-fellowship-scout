@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { TrackedRepos } from "@/components/tracked-repos";
-import { Toaster } from "@/components/ui/toaster";
-import { PlusCircle } from "lucide-react";
-import { CreatePRModal } from "@/components/create-pr-modal";
-import { getUserById } from "@/actions/pod-leaders/users";
-import { use } from "react";
+import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { TrackedRepos } from '@/components/tracked-repos';
+import { Toaster } from '@/components/ui/toaster';
+import { PlusCircle } from 'lucide-react';
+import { CreatePRModal } from '@/components/create-pr-modal';
+import { getUserById } from '@/actions/pod-leaders/users';
+import { use } from 'react';
 
 export default function UserPage({
   params,
@@ -20,7 +20,7 @@ export default function UserPage({
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["user", userId],
+    queryKey: ['user', userId],
     queryFn: () => getUserById(userId),
   });
 
@@ -33,17 +33,17 @@ export default function UserPage({
   }
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="flex justify-between items-center mb-8">
+    <div className='container mx-auto py-10'>
+      <div className='mb-8 flex items-center justify-between'>
         <div>
-          <h1 className="text-4xl font-bold mt-2">{user?.full_name}</h1>
-          <p className="text-xl text-muted-foreground">
+          <h1 className='mt-2 text-4xl font-bold'>{user?.full_name}</h1>
+          <p className='text-xl text-muted-foreground'>
             GitHub Username: {user?.username}
           </p>
         </div>
         <CreatePRModal batchId={batchId} podId={podId} userId={userId}>
           <Button>
-            <PlusCircle className="mr-2 h-4 w-4" />
+            <PlusCircle className='mr-2 h-4 w-4' />
             Create PR
           </Button>
         </CreatePRModal>

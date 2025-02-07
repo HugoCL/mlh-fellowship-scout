@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { createBatch } from "@/actions/pod-leaders/batches";
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { createBatch } from '@/actions/pod-leaders/batches';
 
 async function addBatch(batch: { id: string; name: string }) {
   const response = await createBatch(batch);
@@ -14,27 +14,27 @@ async function addBatch(batch: { id: string; name: string }) {
 }
 
 export function BatchForm() {
-  const [batchId, setBatchId] = useState("");
-  const [batchName, setBatchName] = useState("");
+  const [batchId, setBatchId] = useState('');
+  const [batchName, setBatchName] = useState('');
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const mutation = useMutation({
     mutationFn: addBatch,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["batches"] });
+      queryClient.invalidateQueries({ queryKey: ['batches'] });
       toast({
-        title: "Success",
+        title: 'Success',
         description: `Batch ${batchId} added successfully`,
       });
-      setBatchId("");
-      setBatchName("");
+      setBatchId('');
+      setBatchName('');
     },
     onError: () => {
       toast({
-        title: "Error",
-        description: "Failed to add batch. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to add batch. Please try again.',
+        variant: 'destructive',
       });
     },
   });
@@ -43,9 +43,9 @@ export function BatchForm() {
     e.preventDefault();
     if (!batchId || !batchName) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Please fill in all fields',
+        variant: 'destructive',
       });
       return;
     }
@@ -62,30 +62,30 @@ export function BatchForm() {
         <CardTitle>Add New Batch</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <label htmlFor="batchId" className="text-sm font-medium">
+        <form onSubmit={handleSubmit} className='space-y-4'>
+          <div className='space-y-2'>
+            <label htmlFor='batchId' className='text-sm font-medium'>
               Batch ID
             </label>
             <Input
-              id="batchId"
+              id='batchId'
               value={batchId}
               onChange={(e) => setBatchId(e.target.value)}
-              placeholder="e.g., 25.SUM"
+              placeholder='e.g., 25.SUM'
             />
           </div>
-          <div className="space-y-2">
-            <label htmlFor="batchName" className="text-sm font-medium">
+          <div className='space-y-2'>
+            <label htmlFor='batchName' className='text-sm font-medium'>
               Batch Name
             </label>
             <Input
-              id="batchName"
+              id='batchName'
               value={batchName}
               onChange={(e) => setBatchName(e.target.value)}
-              placeholder="e.g., Summer 2025"
+              placeholder='e.g., Summer 2025'
             />
           </div>
-          <Button type="submit" className="w-full">
+          <Button type='submit' className='w-full'>
             Add Batch
           </Button>
         </form>

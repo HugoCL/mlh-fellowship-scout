@@ -1,5 +1,5 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import Image from "next/image";
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import Image from 'next/image';
 import {
   ClerkLoaded,
   ClerkLoading,
@@ -7,11 +7,11 @@ import {
   SignedOut,
   SignIn,
   SignUp,
-} from "@clerk/nextjs";
+} from '@clerk/nextjs';
 
 export default async function LoginPage() {
   const response = await fetch(
-    "https://api.unsplash.com/photos/random?orientation=portrait&content_filter=high&topics=iUIsnVtjB0Y",
+    'https://api.unsplash.com/photos/random?orientation=portrait&content_filter=high&topics=iUIsnVtjB0Y',
     {
       next: { revalidate: 3600 },
       headers: {
@@ -21,25 +21,25 @@ export default async function LoginPage() {
   );
   const image: { urls: { regular: string } } = await response.json();
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="flex flex-col gap-4 p-6 md:p-10 bg-blue-700">
-        <div className="flex justify-center gap-2 md:justify-start">
+    <div className='grid min-h-svh lg:grid-cols-2'>
+      <div className='flex flex-col gap-4 bg-blue-700 p-6 md:p-10'>
+        <div className='flex justify-center gap-2 md:justify-start'>
           <Image
-            src="/logo-light.svg"
+            src='/logo-light.svg'
             width={193}
             height={44}
-            alt="MLH Fellowship"
+            alt='MLH Fellowship'
           />
         </div>
-        <div className="flex flex-1 items-center justify-center">
+        <div className='flex flex-1 items-center justify-center'>
           <SignUp />
         </div>
       </div>
-      <div className="relative hidden bg-muted lg:block">
+      <div className='relative hidden bg-muted lg:block'>
         <img
           src={image.urls.regular}
-          alt="Image"
-          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          alt='Image'
+          className='absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale'
         />
       </div>
     </div>

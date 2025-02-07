@@ -1,67 +1,65 @@
-'use server'
+'use server';
 
-import prisma from '@/lib/prisma'
-import { User } from '@prisma/client'
-import { auth } from '@clerk/nextjs/server'
+import prisma from '@/lib/prisma';
+import { User } from '@prisma/client';
+import { auth } from '@clerk/nextjs/server';
 
 export async function createUser({ id, full_name, username, pod_id }: User) {
-    const { userId } = await auth()
+  const { userId } = await auth();
 
-    if (!userId) {
-        throw new Error('No autorizado')
-    }
+  if (!userId) {
+    throw new Error('No autorizado');
+  }
 
-    await prisma.user.create({
-        data: { id, full_name, username, pod_id }
-    })
+  await prisma.user.create({
+    data: { id, full_name, username, pod_id },
+  });
 
-    const populatedUser = await prisma.user.findUnique({
-        where: { id },
+  const populatedUser = await prisma.user.findUnique({
+    where: { id },
+    include: {
+      prs: {
         include: {
-            prs: {
-                include: {
-                    commits: true
-                }
-            }
-        }
-    })
+          commits: true,
+        },
+      },
+    },
+  });
 
-    return populatedUser
+  return populatedUser;
 }
 
 export async function getUsersByPodId(podId: string) {
-    const { userId } = await auth()
+  const { userId } = await auth();
 
-    if (!userId) {
-        throw new Error('No autorizado')
-    }
+  if (!userId) {
+    throw new Error('No autorizado');
+  }
 
-    const users = await prisma.user.findMany({
-        where: { pod_id: podId }
-    })
+  const users = await prisma.user.findMany({
+    where: { pod_id: podId },
+  });
 
-    return users
+  return users;
 }
 
 export async function getUserById(userId: string) {
-    const { userId: currentUserId } = await auth()
+  const { userId: currentUserId } = await auth();
 
-    if (!currentUserId) {
-        throw new Error('No autorizado')
-    }
+  if (!currentUserId) {
+    throw new Error('No autorizado');
+  }
 
-    const user = await prisma.user.findUnique({
-        where: { id: userId },
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      prs: {
         include: {
-            prs: {
-                include: {
-                    commits: true
-                }
-            }
-        }
-    })
+          commits: true,
+        },
+      },
+    },
+  });
 
-    return user
+  return user;
 }
-
-
