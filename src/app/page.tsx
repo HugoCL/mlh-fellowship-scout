@@ -26,8 +26,8 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <p>
-                Access tools to track fellow&apos;s GH Activity, analytics, a
-                more features in the future!
+                Access tools to track the progress of your fellows on their
+                projects and more to come!
               </p>
             </CardContent>
             <CardFooter>
@@ -45,10 +45,7 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <p>
-                Streamline the admissions process and manage student
-                applications efficiently.
-              </p>
+              <p>Work in progress!</p>
             </CardContent>
             <CardFooter>
               {false ? (
