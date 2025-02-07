@@ -10,7 +10,7 @@ export default async function Dashboard() {
   return (
     <div className='container mx-auto py-10'>
       <div className='mb-8 flex items-center justify-between'>
-        <h1 className='text-4xl font-bold'>GitHub Scout</h1>
+        <h1 className='text-4xl font-bold'>GitHub Activity</h1>
         <CreateBatchModal>
           <Button>
             <PlusCircle className='mr-2 h-4 w-4' />
