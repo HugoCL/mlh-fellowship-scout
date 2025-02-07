@@ -8,6 +8,11 @@ const inter = Inter({
 });
 
 import './globals.css';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'MLH Fellowship Toolbox',
+};
 
 export default function RootLayout({
   children,
