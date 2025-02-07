@@ -27,6 +27,7 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar';
 import { UserButton } from '@clerk/nextjs';
+import Image from 'next/image';
 
 const data = {
   user: {
@@ -70,7 +71,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible='icon' {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <div className='flex items-center justify-center rounded-full bg-blue-600 p-2'>
+          <Image
+            src='/logo-light.svg'
+            width={193}
+            height={44}
+            alt='MLH Fellowship'
+          />
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
