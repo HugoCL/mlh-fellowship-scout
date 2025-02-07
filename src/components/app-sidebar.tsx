@@ -58,10 +58,6 @@ const data = {
           title: 'GitHub Activity',
           url: '/pod-leaders/gh-activity',
         },
-        {
-          title: 'Program Reports',
-          url: '#',
-        },
       ],
     },
   ],

@@ -9,6 +9,7 @@ import {
   BreadcrumbSeparator,
 } from './ui/breadcrumb';
 import React from 'react';
+import { pathSegments } from '@/types/path-segments';
 
 const PathAwareBreadcrumb = () => {
   const path = usePathname();
@@ -24,10 +25,16 @@ const PathAwareBreadcrumb = () => {
             <React.Fragment key={index}>
               <BreadcrumbItem>
                 {isLast ? (
-                  <BreadcrumbPage>{segment}</BreadcrumbPage>
+                  <BreadcrumbPage>
+                    {pathSegments[segment as keyof typeof pathSegments] ??
+                      segment}
+                  </BreadcrumbPage>
                 ) : (
                   <>
-                    <BreadcrumbLink href={path}>{segment}</BreadcrumbLink>
+                    <BreadcrumbLink href={path}>
+                      {pathSegments[segment as keyof typeof pathSegments] ??
+                        segment}
+                    </BreadcrumbLink>
                   </>
                 )}
               </BreadcrumbItem>
